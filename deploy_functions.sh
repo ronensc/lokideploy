@@ -210,7 +210,7 @@ print_usage_instructions () {
   GRAFANA_ROUTE_URL=$(oc get route grafana -o jsonpath="{.spec.host}")
   echo -e "\nopen browser agasint http://$GRAFANA_ROUTE_URL\n"
   echo -e "user: admin password: password\n"
-  echo -e "\n\n expore loki data in minio:: oc logs $MINIO_POD -c minio-mc"
+  echo -e "\n\nexpore loki data in minio:: oc logs -f $MINIO_POD -c minio-mc"
   echo -e "\n\nExample: under explore tab change datasource to \"Loki\", change time to \"last 24 hours\" and run query like:\n"
   echo -e " {job=\"openshift-dns/dns-default\"}"
   echo -e " {app=\"loki-distributed\"} | logfmt | entries > 1"
