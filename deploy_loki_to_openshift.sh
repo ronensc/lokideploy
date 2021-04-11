@@ -3,14 +3,14 @@
 source ./deploy_functions.sh
 
 collector="none"
-replicas=1
+replicas=2
 
 show_usage() {
   echo "
 usage: deploy_loki_to_openshift [options]
   options:
     -c  --collector=[enum] Logs collector (promtail, none  default: none)
-    -r  --replicas=[num]   Loki microservices replicaes ( default: 1)
+    -r  --replicas=[num]   Loki microservices replicaes ( default: 2)
     -h, --help             Show usage
 "
   exit 0
