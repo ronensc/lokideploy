@@ -47,7 +47,7 @@ loki:
     auth_enabled: false
 
     server:
-      log_level: debug
+      log_level: info
       # Must be set to 3100
       http_listen_port: 3100
 
