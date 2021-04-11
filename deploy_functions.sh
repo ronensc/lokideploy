@@ -7,6 +7,21 @@ create_loki_project() {
   oc project loki
 }
 
+# delete loki project if it exists (to get new fresh deployment)
+delete_loki_project_if_exists() {
+PROJECT_LOKI=$(oc get project | grep loki)
+if [ -n "$PROJECT_LOKI" ]; then
+  echo "--> Deleting loki namespace"
+  oc delete project loki
+  while : ; do
+    PROJECT_LOKI=$(oc get project | grep loki)
+    if [ -z "$PROJECT_LOKI" ]; then break; fi
+    sleep 1
+  done
+fi
+}
+
+
 # set  security
 set_security_parameters() {
   echo "==> setting security parameters"
