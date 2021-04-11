@@ -47,7 +47,7 @@ main() {
   enable_user_workload_monitoring
   add_helm_repository
   deploy_minio
-  deploy_loki_distributed_helm_chart $1
+  deploy_loki_distributed_helm_chart $replicas
   deploy_grafana_helm_chart
   case "$collector" in
     'promtail')   deploy_promtail_helm_chart;;
