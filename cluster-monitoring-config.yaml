@@ -6,5 +6,5 @@ metadata:
 data:
   config.yaml: |
     enableUserWorkload: true
-    techPreviewUserWorkload: 
+    techPreviewUserWorkload:
       enabled: true
