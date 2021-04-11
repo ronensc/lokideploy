@@ -38,7 +38,8 @@ add_helm_repository() {
 
 # deploy loki (distributed)
 deploy_loki_distributed_helm_chart() {
-  echo "==> deploying loki (using helm)"
+  replicats=$1
+  echo "==> deploying loki (using helm) - with $replicats replicas"
   helm delete loki -n loki
   cat > tmp/loki-values.yaml <<- EOF
 loki:
@@ -122,13 +123,13 @@ loki:
 gateway:
   enabled: false
 distributor:
-  replicas: 3
+  replicas: ${replicats}
 querier:
-  replicas: 3
+  replicas: ${replicats}
 queryFrontend:
-  replicas: 3
+  replicas: ${replicats}
 ingester:
-  replicas: 3
+  replicas: ${replicats}
   persistence: 
     enabled: true
 memcachedChunks:

@@ -2,14 +2,16 @@
 
 source ./deploy_functions.sh
 
-collector="promtail"
+collector="none"
+replicas=1
 
 show_usage() {
   echo "
 usage: deploy_loki_to_openshift [options]
   options:
-    -c  --collector=[enum]  Logs collector (promtail, none  default: promtail)
-    -h, --help              Show usage
+    -c  --collector=[enum] Logs collector (promtail, none  default: none)
+    -r  --replicas=[num]   Loki microservices replicaes ( default: 1)
+    -h, --help             Show usage
 "
   exit 0
 }
@@ -19,6 +21,7 @@ do
 case $i in
     --nothing) nothing=true; shift ;;
     -c=*|--collector=*) collector="${i#*=}"; shift ;;
+    -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
     -h|--help|*) show_usage ;;
 esac
 done
@@ -31,6 +34,7 @@ Note: get more deployment options with -h
 Configuration:
 -=-=-=-=-=-=-
 Logs collector --> $collector
+Loki microservices replicas --> $replicas
 
 "
 }
@@ -43,7 +47,7 @@ main() {
   enable_user_workload_monitoring
   add_helm_repository
   deploy_minio
-  deploy_loki_distributed_helm_chart
+  deploy_loki_distributed_helm_chart $1
   deploy_grafana_helm_chart
   case "$collector" in
     'promtail')   deploy_promtail_helm_chart;;
