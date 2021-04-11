@@ -25,7 +25,7 @@ add_helm_repository() {
 deploy_loki_distributed_helm_chart() {
   echo "==> deploying loki (using helm)"
   helm delete loki -n loki
-  cat > loki-values.yaml <<- EOF
+  cat > tmp/loki-values.yaml <<- EOF
 loki:
   config: |
     auth_enabled: false
@@ -127,7 +127,7 @@ memcachedIndexWrites:
 serviceMonitor:
   enabled: true
 EOF
-  helm upgrade --install loki grafana/loki-distributed --namespace=loki -f loki-values.yaml
+  helm upgrade --install loki grafana/loki-distributed --namespace=loki -f tmp/loki-values.yaml
   oc delete -n loki route loki-loki-distributed-query-frontend
   oc expose -n loki service loki-loki-distributed-query-frontend
   oc delete -n loki route loki-loki-distributed-distributor
@@ -139,7 +139,7 @@ EOF
 deploy_grafana_helm_chart() {
   echo "==> deploying grafana (using helm)"
   helm delete grafana -n loki
-  cat > grafana-values.yaml <<- EOF
+  cat > tmp/grafana-values.yaml <<- EOF
 adminUser: admin
 adminPassword: password
 datasources:
@@ -151,7 +151,7 @@ datasources:
       access: proxy
       url: http://loki-loki-distributed-query-frontend.loki.svc.cluster.local:3100
 EOF
-  helm upgrade --install grafana grafana/grafana --namespace=loki -f grafana-values.yaml
+  helm upgrade --install grafana grafana/grafana --namespace=loki -f tmp/grafana-values.yaml
   oc delete -n loki route grafana
   oc expose -n loki service grafana
   oc get route -n loki
@@ -161,7 +161,7 @@ EOF
 deploy_promtail_helm_chart() {
   echo "==> deploying promtail (using helm)"
   helm delete promtail -n loki
-  cat > promtail.yaml <<- EOF
+  cat > tmp/promtail-values.yaml <<- EOF
 config:
   logLevel: "info"
   lokiAddress: "http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/loki/api/v1/push"
@@ -171,7 +171,7 @@ podSecurityContext:
   runAsUser: 100
   runAsGroup: 100
 EOF
-  helm upgrade --install promtail grafana/promtail --namespace=loki -f promtail.yaml
+  helm upgrade --install promtail grafana/promtail --namespace=loki -f tmp/promtail-values.yaml
   oc patch ds promtail --type=json -p '[{"op": "remove", "path": "/spec/template/spec/securityContext"}]'
   oc patch ds promtail --type=json -p '[{"op": "add", "path": "/spec/template/spec/containers/0/securityContext/privileged", "value":true}]'
 }

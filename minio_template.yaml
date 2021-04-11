@@ -23,15 +23,21 @@ objects:
         containers:
         - image: minio/minio
           imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
           name: minio
           args:
           - server
-          - /tmp/data
+          - /minio-data
           env:
           - name: MINIO_ACCESS_KEY
             value: user
           - name: MINIO_SECRET_KEY
             value: password
+          volumeMounts:  
+          - mountPath: /minio-data
+            name: minio-data            
         - image: minio/mc
           imagePullPolicy: Always
           name: minio-mc
@@ -61,6 +67,11 @@ objects:
               /usr/bin/mc ls local/bucket/index --summarize -r | tail -n 10;
               sleep 60;
             done;
+        volumes:
+        - name: minio-data
+          hostPath:
+            path: /tmp
+            type: Directory
 # Service for minio
 - apiVersion: v1
   kind: Service

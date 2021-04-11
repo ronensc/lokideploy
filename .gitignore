@@ -1,3 +1,1 @@
-grafana-values.yaml
-loki-values.yaml
-promtail.yaml
+tmp/**
