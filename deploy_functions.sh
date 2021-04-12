@@ -57,14 +57,7 @@ loki:
           store: memberlist
 
     ingester:
-      # Disable chunk transfer which is not possible with statefulsets
-      # and unnecessary for boltdb-shipper
-      max_transfer_retries: 0
-      chunk_idle_period: 1h
-      chunk_target_size: 1536000
-      max_chunk_age: 1h
       lifecycler:
-        join_after: 0s
         ring:
           kvstore:
             store: memberlist
@@ -74,10 +67,10 @@ loki:
         - {{ include "loki.fullname" . }}-memberlist
 
     limits_config:
-      ingestion_rate_mb: 10
-      ingestion_burst_size_mb: 20
-      max_concurrent_tail_requests: 20
-      max_cache_freshness_per_query: 10m
+      ingestion_rate_mb: 1000000
+      ingestion_burst_size_mb: 1000000
+      max_concurrent_tail_requests: 1000000
+      max_cache_freshness_per_query: 1m
 
     schema_config:
       configs:
@@ -98,21 +91,6 @@ loki:
         shared_store: s3
         active_index_directory: /var/loki/index
         cache_location: /var/loki/cache  
-
-    query_range:
-      # make queries more cache-able by aligning them with their step intervals
-      align_queries_with_step: true
-      max_retries: 5
-      # parallelize queries in 15min intervals
-      split_queries_by_interval: 15m
-      cache_results: true
-
-      results_cache:
-        cache:
-          enable_fifocache: true
-          fifocache:
-            max_size_items: 1024
-            validity: 24h
 
     frontend_worker:
       frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
