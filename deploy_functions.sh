@@ -67,9 +67,9 @@ loki:
         - {{ include "loki.fullname" . }}-memberlist
 
     limits_config:
-      ingestion_rate_mb: 1000000
-      ingestion_burst_size_mb: 1000000
-      max_concurrent_tail_requests: 1000000
+      ingestion_rate_mb: 1000
+      ingestion_burst_size_mb: 1000
+      max_concurrent_tail_requests: 1000
       max_cache_freshness_per_query: 1m
 
     schema_config:
