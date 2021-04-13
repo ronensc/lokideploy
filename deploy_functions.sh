@@ -50,6 +50,8 @@ loki:
       log_level: info
       # Must be set to 3100
       http_listen_port: 3100
+      grpc_server_max_recv_msg_size: 16000000
+      grpc_server_max_send_msg_size: 16000000
 
     distributor:
       ring:
