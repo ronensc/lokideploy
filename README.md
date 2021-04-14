@@ -1,14 +1,27 @@
 # lokideploy
 
-## deploy
+## Deploy
 To deploy execute the following  
 
 `./deploy_loki_to_openshift.sh`
+
+## Usage
+
+```bash
+$ ./deploy_loki_to_openshift.sh -?
+
+usage: deploy_loki_to_openshift [options]
+  options:
+    -c  --collector=[enum] Logs collector (promtail, none  default: none)
+    -r  --replicas=[num]   Loki microservices replicaes ( default: 2)
+    -h, --help             Show usage
+```
 
 ## Details  
 
 The deploy code is executing the following steps   
 
+==> deleting old loki project (if exists)
 ==> creating loki project  
 ==> setting security parameters  
 ==> enable user workload monitoring  
@@ -17,7 +30,7 @@ The deploy code is executing the following steps
 ==> deploying grafana (using helm)  
 ==> deploying promtail (using helm)  
 
-Exampe output of  pods and details after deployment looks like this
+Example output of  pods and details after deployment looks like this
 
 ```
 NAME                                                   READY   STATUS        RESTARTS   AGE
