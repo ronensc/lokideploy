@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: stress
+objects:
+# Containers included in this pod::
+# (1) write-stress - perform write stress against loki
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: write-stress
+  spec:
+    replicas: ${{write_replicas}}
+    selector:
+      matchLabels:
+        app: write-stress
+    template:
+      metadata:
+        labels:
+          app: write-stress
+      spec:
+        containers:
+        - image: fedora:latest
+          imagePullPolicy: Always
+          name: fedora
+          command: ["/bin/sh"]
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+          args:
+          - -c
+          - >
+            echo "Starting.";
+            echo "Loki ready ?";
+            curl "http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/ready";
+            while true; do
+              LOG_LABELS="foo=\\\"bar\\\"";
+              LOG_LINE=Host:"$HOSTNAME message:"$(tr -dc " A-Za-z" < /dev/urandom | tr -d \''\\'\` | head -c 100);
+              LOKI_PUSH_HEADER="Content-Type: application/json";
+              LOKI_PUSH_ENDPOINT="http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/api/prom/push";
+              NOW=$(date --rfc-3339=seconds | sed 's/ /T/');
+              curl -H "$LOKI_PUSH_HEADER" -XPOST -s $LOKI_PUSH_ENDPOINT --data-raw '{"streams": [{ "labels": "{'$LOG_LABELS'}", "entries": [{ "ts": "'$NOW'", "line": "'"$LOG_LINE"'" }] }]}';
+              sleep ${write_delay};
+            done;
+  # Containers included in this pod::
+  # (1) query-stress - perform query stress against loki
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: query-stress
+  spec:
+    replicas: ${{query_replicas}}
+    selector:
+      matchLabels:
+        app: query-stress
+    template:
+      metadata:
+        labels:
+          app: query-stress
+      spec:
+        containers:
+          - image: fedora:latest
+            imagePullPolicy: Always
+            name: fedora
+            command: ["/bin/sh"]
+            securityContext:
+              allowPrivilegeEscalation: true
+              privileged: true
+            args:
+              - -c
+              - >
+                echo "Starting.";
+                echo "Loki ready ?";
+                curl "http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/ready";
+                while true; do
+                  LOKI_QUERY_ENDPOINT="http://loki-loki-distributed-query-frontend.loki.svc.cluster.local:3100/loki/api/v1/query_range";
+                  NOW=$(date --rfc-3339=seconds | sed 's/ /T/');
+                  NOW_MS=$(date +%s%N);
+                  RES=$(curl -s -G -s $LOKI_QUERY_ENDPOINT --data-raw 'query=rate({foo="bar"}[1m])' --data-urlencode 'start='$NOW_MS'');
+                  if [[ "$RES" != *"success"* ]]; then echo $NOW" Query failed"; fi;
+                  sleep ${query_delay};
+                done;
+parameters:
+  - name: write_replicas
+  - name: write_delay
+  - name: query_replicas
+  - name: query_delay

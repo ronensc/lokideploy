@@ -3,14 +3,14 @@
 source ./deploy_functions.sh
 
 collector="none"
-replicas=2
+replicas=3
 
 show_usage() {
   echo "
 usage: deploy_loki_to_openshift [options]
   options:
     -c  --collector=[enum] Logs collector (promtail, none  default: none)
-    -r  --replicas=[num]   Loki microservices replicaes ( default: 2)
+    -r  --replicas=[num]   Loki microservices replicas ( default: 2)
     -h, --help             Show usage
 "
   exit 0
@@ -54,6 +54,7 @@ main() {
     'none') echo "==> Collector will not be deployed (none)";;
     *) show_usage ;;
   esac
+  deploy_stress 10 0.1 10 0.1
   print_pods_status
   print_usage_instructions
 }

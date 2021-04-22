@@ -173,26 +173,36 @@ EOF
 }
 
 # enable user workload monitoring 
-enable_user_workload_monitoring () {
+enable_user_workload_monitoring() {
   echo "==> enable user workload monitoring"
   oc apply -f cluster-monitoring-config.yaml
 }
 
 # enable user workload monitoring 
-deploy_minio () {
+deploy_minio() {
   echo "==> deploy minio"
   oc process -f minio_template.yaml | oc apply -f -
   oc expose -n loki service minio
 }
 
+deploy_stress() {
+  echo "==> deploy stress"
+  oc process -f stress_template.yaml \
+    -p write_replicas="$1" \
+    -p write_delay="$2" \
+    -p query_replicas="$3" \
+    -p query_delay="$4" \
+    | oc apply -f -
+}
+
 # print pod status
-print_pods_status () {
+print_pods_status() {
   echo -e "\n"
   oc get pods
 }
 
 # print usage instructions
-print_usage_instructions () {
+print_usage_instructions() {
   GRAFANA_POD=$(oc get pod -l app.kubernetes.io/name=grafana -o jsonpath="{.items[0].metadata.name}")
   MINIO_POD=$(oc get pod -l app=minio -o jsonpath="{.items[0].metadata.name}")
 
@@ -210,6 +220,7 @@ print_usage_instructions () {
   echo -e "\n\nExample: under explore tab change datasource to \"Loki\", change time to \"last 24 hours\" and run query like:\n"
   echo -e " {job=\"openshift-dns/dns-default\"}"
   echo -e " {app=\"loki-distributed\"} | logfmt | entries > 1"
+  echo -e "\n\n to see resource utilization use: kubectl top pod --namespace=loki --sort-by=cpu | head -n 20;"
   
 }
 
