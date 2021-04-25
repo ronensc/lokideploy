@@ -27,21 +27,61 @@ objects:
           securityContext:
             allowPrivilegeEscalation: true
             privileged: true
+            runAsUser: 0
           args:
           - -c
           - >
             echo "Starting.";
+            yum install -y procps;
+            yum install -y unzip;
+            cat /loki-write-stressor-binary-z01/loki-write-stressor-split.z01 /loki-write-stressor-binary-zip/loki-write-stressor-split.zip > loki-write-stressor.zip;
+            unzip loki-write-stressor.zip;
             echo "Loki ready ?";
             curl "http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/ready";
+            LOG_LABELS="{foo=\\\"bar\\\"}";
+            LOKI_PUSH_ENDPOINT="http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/api/prom/push";
+            ./loki-write-stressor -endPoint=$LOKI_PUSH_ENDPOINT -labels="$LOG_LABELS" -messagesPerSecond=${write_message_per_second} -burstSize=${write_batch_size};
+            echo "We will never get here, the implementation moved from bash to golang and is happening here ^^^ ";
+            echo "the bellow code is stressing loki in bash, is slow and deprecated";
+            echo ".";
+            LOKI_PUSH_HEADER="Content-Type: application/json";
+            RAM_DIR=/dev/shm/write_stress;
+            ENTRIES_FILE=$RAM_DIR/entries.txt;
+            mkdir -p $RAM_DIR;
             while true; do
-              LOG_LABELS="foo=\\\"bar\\\"";
-              LOG_LINE=Host:"$HOSTNAME message:"$(tr -dc " A-Za-z" < /dev/urandom | tr -d \''\\'\` | head -c 100);
-              LOKI_PUSH_HEADER="Content-Type: application/json";
-              LOKI_PUSH_ENDPOINT="http://loki-loki-distributed-distributor.loki.svc.cluster.local:3100/api/prom/push";
-              NOW=$(date --rfc-3339=seconds | sed 's/ /T/');
-              curl -H "$LOKI_PUSH_HEADER" -XPOST -s $LOKI_PUSH_ENDPOINT --data-raw '{"streams": [{ "labels": "{'$LOG_LABELS'}", "entries": [{ "ts": "'$NOW'", "line": "'"$LOG_LINE"'" }] }]}';
+              WRITE_BATCH_SIZE=${write_batch_size};
+              echo -n "" > $ENTRIES_FILE;
+              COUNTER=0;
+              while true; do
+                NOW=$(date --rfc-3339=seconds | sed 's/ /T/');
+                LOG_LINE=Host:"$HOSTNAME message:"$(tr -dc " A-Za-z" < /dev/urandom | tr -d \''\\'\` | head -c 100);
+                ENTRY='{ "ts": "'$NOW'", "line": "'"$LOG_LINE"'" }';
+                echo -n $ENTRY >> $ENTRIES_FILE;
+                COUNTER=$(( COUNTER+1 ));
+                if [ $COUNTER -ge $WRITE_BATCH_SIZE ]; then
+                  break
+                fi
+                echo -n "," >> $ENTRIES_FILE;
+              done
+              DATA_FILE=$RAM_DIR/data.txt;
+              echo -n '{"streams": [{ "labels": "{'$LOG_LABELS'}", "entries": [' > $DATA_FILE;
+              cat $ENTRIES_FILE >> $DATA_FILE
+              echo -n '] }]}' >> $DATA_FILE;
+              curl -H "$LOKI_PUSH_HEADER" -XPOST -s $LOKI_PUSH_ENDPOINT --data "@$DATA_FILE"
               sleep ${write_delay};
             done;
+          volumeMounts:
+            - name: loki-write-stressor-binary-zip
+              mountPath: /loki-write-stressor-binary-zip
+            - name: loki-write-stressor-binary-z01
+              mountPath: /loki-write-stressor-binary-z01
+        volumes:
+          - name: loki-write-stressor-binary-zip
+            configMap:
+              name: loki-write-stressor-binary-zip
+          - name: loki-write-stressor-binary-z01
+            configMap:
+              name: loki-write-stressor-binary-z01
   # Containers included in this pod::
   # (1) query-stress - perform query stress against loki
 - apiVersion: apps/v1
@@ -82,6 +122,7 @@ objects:
                 done;
 parameters:
   - name: write_replicas
-  - name: write_delay
+  - name: write_message_per_second
+  - name: write_batch_size
   - name: query_replicas
   - name: query_delay

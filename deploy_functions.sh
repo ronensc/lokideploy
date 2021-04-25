@@ -25,9 +25,12 @@ fi
 # set  security
 set_security_parameters() {
   echo "==> setting security parameters"
+  oc adm policy add-scc-to-user privileged -z default
+  oc adm policy add-cluster-role-to-user cluster-reader -z default
   oc adm policy add-scc-to-group anyuid system:authenticated
   oc patch scc restricted --type=json -p '[{"op": "replace", "path": "/allowHostDirVolumePlugin", "value":true}]'
   oc patch scc restricted --type=json -p '[{"op": "replace", "path": "/allowPrivilegedContainer", "value":true}]'
+
 }
 
 # add helm to repository
@@ -186,12 +189,30 @@ deploy_minio() {
 }
 
 deploy_stress() {
+
+  DEPLOY_YAML=stress_template.yaml
+  echo "--> Deploying $DEPLOY_YAML - with ($1 $2 $3 $4 $5)"
+  rm -f loki-write-stressor.zip
+  rm -f loki-write-stressor
+  rm -f loki-write-stressor-split.*
+  go build -ldflags "-s -w" go/loki-stressor/loki-write-stressor.go
+  zip loki-write-stressor.zip loki-write-stressor
+  zip -s 1m loki-write-stressor.zip --out loki-write-stressor-split.zip
+  oc delete configmap --ignore-not-found=true loki-write-stressor-binary-zip
+  oc delete configmap --ignore-not-found=true loki-write-stressor-binary-z01
+  oc create configmap loki-write-stressor-binary-zip --from-file=loki-write-stressor-split.zip
+  oc create configmap loki-write-stressor-binary-z01 --from-file=loki-write-stressor-split.z01
+  rm -f loki-write-stressor.zip
+  rm -f loki-write-stressor
+  rm -f loki-write-stressor-split.*
+
   echo "==> deploy stress"
-  oc process -f stress_template.yaml \
+  oc process -f $DEPLOY_YAML \
     -p write_replicas="$1" \
-    -p write_delay="$2" \
-    -p query_replicas="$3" \
-    -p query_delay="$4" \
+    -p write_message_per_second="$2" \
+    -p write_batch_size="$3" \
+    -p query_replicas="$4" \
+    -p query_delay="$5" \
     | oc apply -f -
 }
 

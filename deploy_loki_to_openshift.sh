@@ -19,7 +19,6 @@ usage: deploy_loki_to_openshift [options]
 for i in "$@"
 do
 case $i in
-    --nothing) nothing=true; shift ;;
     -c=*|--collector=*) collector="${i#*=}"; shift ;;
     -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
     -h|--help|*) show_usage ;;
@@ -47,14 +46,14 @@ main() {
   enable_user_workload_monitoring
   add_helm_repository
   deploy_minio
-  deploy_loki_distributed_helm_chart $replicas
+  deploy_loki_distributed_helm_chart "$replicas"
   deploy_grafana_helm_chart
   case "$collector" in
     'promtail')   deploy_promtail_helm_chart;;
     'none') echo "==> Collector will not be deployed (none)";;
     *) show_usage ;;
   esac
-  deploy_stress 10 0.1 10 0.1
+  deploy_stress 1 2 60  0 60
   print_pods_status
   print_usage_instructions
 }
