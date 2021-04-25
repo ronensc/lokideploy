@@ -242,6 +242,7 @@ print_usage_instructions() {
   echo -e " {job=\"openshift-dns/dns-default\"}"
   echo -e " {app=\"loki-distributed\"} | logfmt | entries > 1"
   echo -e "\n\n to see resource utilization use: kubectl top pod --namespace=loki --sort-by=cpu | head -n 20;"
+  echo -e "\n\n change stress example: source ./deploy_functions.sh ; deploy_stress 5 10000 1000  0 30"
   
 }
 
