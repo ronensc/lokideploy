@@ -21,18 +21,6 @@ if [ -n "$PROJECT_LOKI" ]; then
 fi
 }
 
-
-# set  security
-set_security_parameters() {
-  echo "==> setting security parameters"
-  oc adm policy add-scc-to-user privileged -z default
-  oc adm policy add-cluster-role-to-user cluster-reader -z default
-  oc adm policy add-scc-to-group anyuid system:authenticated
-  oc patch scc restricted --type=json -p '[{"op": "replace", "path": "/allowHostDirVolumePlugin", "value":true}]'
-  oc patch scc restricted --type=json -p '[{"op": "replace", "path": "/allowPrivilegedContainer", "value":true}]'
-
-}
-
 # add helm to repository
 add_helm_repository() {
   echo "adding helm repository"
@@ -41,8 +29,10 @@ add_helm_repository() {
 
 # deploy loki (distributed)
 deploy_loki_distributed_helm_chart() {
-  replicats=$1
-  echo "==> deploying loki (using helm) - with $replicats replicas"
+  replications=$1
+  s3_endpoint=$2
+
+  echo "==> deploying loki (using helm) - with $replications replications"
   helm delete loki -n loki
   cat > tmp/loki-values.yaml <<- EOF
 loki:
@@ -89,8 +79,7 @@ loki:
 
     storage_config:
       aws:
-        s3: s3://user:password@minio.loki.svc.cluster.local:9000
-        bucketnames: bucket
+        s3: ${s3_endpoint}
         s3forcepathstyle: true
       boltdb_shipper:
         shared_store: s3
@@ -106,13 +95,13 @@ loki:
 gateway:
   enabled: false
 distributor:
-  replicas: ${replicats}
+  replicas: ${replications}
 querier:
-  replicas: ${replicats}
+  replicas: ${replications}
 queryFrontend:
-  replicas: ${replicats}
+  replicas: ${replications}
 ingester:
-  replicas: ${replicats}
+  replicas: ${replications}
   persistence: 
     enabled: true
 memcachedChunks:
@@ -126,6 +115,7 @@ memcachedIndexWrites:
 serviceMonitor:
   enabled: true
 EOF
+  oc adm policy add-scc-to-user privileged -z loki-loki-distributed
   helm upgrade --install loki grafana/loki-distributed --namespace=loki -f tmp/loki-values.yaml
   oc delete -n loki route loki-loki-distributed-query-frontend
   oc expose -n loki service loki-loki-distributed-query-frontend
@@ -150,6 +140,7 @@ datasources:
       access: proxy
       url: http://loki-loki-distributed-query-frontend.loki.svc.cluster.local:3100
 EOF
+  oc adm policy add-scc-to-user privileged -z grafana
   helm upgrade --install grafana grafana/grafana --namespace=loki -f tmp/grafana-values.yaml
   oc delete -n loki route grafana
   oc expose -n loki service grafana
@@ -170,6 +161,7 @@ podSecurityContext:
   runAsUser: 100
   runAsGroup: 100
 EOF
+  oc adm policy add-scc-to-user privileged -z promtail
   helm upgrade --install promtail grafana/promtail --namespace=loki -f tmp/promtail-values.yaml
   oc patch ds promtail --type=json -p '[{"op": "remove", "path": "/spec/template/spec/securityContext"}]'
   oc patch ds promtail --type=json -p '[{"op": "add", "path": "/spec/template/spec/containers/0/securityContext/privileged", "value":true}]'
@@ -184,6 +176,8 @@ enable_user_workload_monitoring() {
 # enable user workload monitoring 
 deploy_minio() {
   echo "==> deploy minio"
+  oc adm policy add-scc-to-user privileged -z minio-service-account
+  oc delete --ignore-not-found=true deployment minio
   oc process -f minio_template.yaml | oc apply -f -
   oc expose -n loki service minio
 }
@@ -207,6 +201,9 @@ deploy_stress() {
   rm -f loki-write-stressor-split.*
 
   echo "==> deploy stress"
+  oc adm policy add-scc-to-user privileged -z stress-service-account
+  oc delete --ignore-not-found=true statefulset write-stress
+  oc delete --ignore-not-found=true statefulset query-stress
   oc process -f $DEPLOY_YAML \
     -p write_replicas="$1" \
     -p write_message_per_second="$2" \

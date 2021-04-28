@@ -3,6 +3,10 @@ kind: Template
 metadata:
   name: minio
 objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: minio-service-account
 # Containers included in this pod::
 # (2) Minio - Object storage destination for flows
 # (3) minio-mc - create bucket in Minio (init only container)
@@ -20,6 +24,7 @@ objects:
         labels:
           app: minio
       spec:
+        serviceAccountName: minio-service-account
         containers:
         - image: minio/minio
           imagePullPolicy: Always

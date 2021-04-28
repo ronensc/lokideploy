@@ -3,6 +3,10 @@ kind: Template
 metadata:
   name: stress
 objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: stress-service-account
 # Containers included in this pod::
 # (1) write-stress - perform write stress against loki
 - apiVersion: apps/v1
@@ -19,6 +23,7 @@ objects:
         labels:
           app: write-stress
       spec:
+        serviceAccountName: stress-service-account
         containers:
         - image: fedora:latest
           imagePullPolicy: Always
@@ -98,6 +103,7 @@ objects:
         labels:
           app: query-stress
       spec:
+        serviceAccountName: stress-service-account
         containers:
           - image: fedora:latest
             imagePullPolicy: Always
