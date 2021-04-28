@@ -26,9 +26,10 @@ for i in "$@"
 do
 case $i in
     -c=*|--collector=*) collector="${i#*=}"; shift ;;
+    -dm=*|--deploy_minio=*) deploy_minio="${i#*=}"; shift ;;
     -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
     -sp=*|--stress_profile=*) stress_profile="${i#*=}"; shift ;;
-    -dm=*|--deploy_minio=*) deploy_minio="${i#*=}"; shift ;;
+    -s3ep=*|--s3_endpoint=*) s3_endpoint="${i#*=}"; shift ;;
     -h|--help|*) show_usage ;;
 esac
 done
