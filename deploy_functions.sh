@@ -129,6 +129,9 @@ deploy_grafana_helm_chart() {
   echo "==> deploying grafana (using helm)"
   helm delete grafana -n loki
   cat > tmp/grafana-values.yaml <<- EOF
+rbac:
+  create: false
+  pspEnabled: false
 adminUser: admin
 adminPassword: password
 datasources:
