@@ -124,6 +124,8 @@ auto_deploy_loki() {
 
   # Initial benchmark deployment
   csv_filename="results/results_on_"$(date +"%m-%d-%y...%T")".csv"
+  rm "$csv_filename"
+  touch "$csv_filename"
   date
   echo "
 
