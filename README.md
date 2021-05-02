@@ -5,6 +5,13 @@ To deploy execute the following
 
 `./deploy_loki_to_openshift.sh`
 
+## Automation
+To automate process, execute:
+
+`./contrib/auto_execution.sh`
+
+> Note: use -h for additional options 
+
 ## Usage
 
 ```bash
