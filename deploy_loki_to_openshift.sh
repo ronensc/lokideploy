@@ -1,13 +1,5 @@
 #!/bin/bash
 
-source ./deploy_functions.sh
-
-collector="none"
-replicas=2
-stress_profile="none"
-deploy_minio=false
-s3_endpoint="s3://user:password@minio.loki.svc.cluster.local:9000/bucket"
-
 show_usage() {
   echo "
 usage: deploy_loki_to_openshift [options]
@@ -21,18 +13,6 @@ usage: deploy_loki_to_openshift [options]
 "
   exit 0
 }
-
-for i in "$@"
-do
-case $i in
-    -c=*|--collector=*) collector="${i#*=}"; shift ;;
-    -dm=*|--deploy_minio=*) deploy_minio="${i#*=}"; shift ;;
-    -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
-    -sp=*|--stress_profile=*) stress_profile="${i#*=}"; shift ;;
-    -s3ep=*|--s3_endpoint=*) s3_endpoint="${i#*=}"; shift ;;
-    -h|--help|*) show_usage ;;
-esac
-done
 
 show_configuration() {
 
@@ -49,7 +29,7 @@ S3 End Point  --> $s3_endpoint
 "
 }
 
-main() {
+deploy() {
   show_configuration
   delete_loki_project_if_exists
   create_loki_project
@@ -72,11 +52,36 @@ main() {
     'heavy') deploy_stress 5 10000 1000 1 1;;
     *) show_usage ;;
   esac
-
-  print_pods_status
-  print_usage_instructions
 }
 
-main
+RUNNING="$(basename $(echo "$0" | sed 's/-//g'))"
+if [[ "$RUNNING" == "deploy_loki_to_openshift.sh" ]]
+then
+
+  source ./contrib/deploy_functions.sh
+
+  #default parameters
+  collector="none"
+  replicas=2
+  stress_profile="none"
+  deploy_minio=false
+  s3_endpoint="s3://user:password@minio.loki.svc.cluster.local:9000/bucket"
+
+  for i in "$@"
+  do
+  case $i in
+      -c=*|--collector=*) collector="${i#*=}"; shift ;;
+      -dm=*|--deploy_minio=*) deploy_minio="${i#*=}"; shift ;;
+      -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
+      -sp=*|--stress_profile=*) stress_profile="${i#*=}"; shift ;;
+      -s3ep=*|--s3_endpoint=*) s3_endpoint="${i#*=}"; shift ;;
+      -h|--help|*) show_usage ;;
+  esac
+  done
+
+  deploy "$@"
+  print_pods_status
+  print_usage_instructions
+fi
 
 

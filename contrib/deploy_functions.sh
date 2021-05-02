@@ -105,13 +105,13 @@ ingester:
   persistence: 
     enabled: true
 memcachedChunks:
-  enabled: true
+  enabled: false
 memcachedFrontend:
-  enabled: true
+  enabled: false
 memcachedIndexQueries: 
-  enabled: true
+  enabled: false
 memcachedIndexWrites:
-  enabled: true
+  enabled: false
 serviceMonitor:
   enabled: true
 EOF
