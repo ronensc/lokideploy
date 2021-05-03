@@ -43,8 +43,8 @@ initial_deploy() {
 average_csv_line() {
   csv="$1"
   pod_pre="$2"
-  AVG_CPU=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$5; ++n} END { print int(sum/n) }')
-  AVG_MEM=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$6; ++n} END { print int(sum/n) }')
+  AVG_CPU=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$3; ++n} END { print int(sum/n) }')
+  AVG_MEM=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$4; ++n} END { print int(sum/n) }')
   AVG_CSV="$csv_line_pre$pod_pre-avg,avg-loki,$AVG_CPU,$AVG_MEM"
   echo "$AVG_CSV"
 }
@@ -65,9 +65,7 @@ collect_results() {
   while : ; do
     RESULTS=$(kubectl top pod --namespace=loki)
     LOG_RESULTS=$(printf "%s\n\n%s\n" "$LOG_RESULTS" "$RESULTS")
-    CSV_RESULTS="$(kubectl top pod --namespace=loki --containers | sed -r 's|Mi | |' | sed -r 's| ([0-9]+)m|\1|' | tr -s "[:blank:]" "," | sed -r 's|^|'$csv_line_pre'|g')"
-
-    ## echo "$CSV_RESULTS" >> "$csv_filename"
+    CSV_RESULTS="$(kubectl top pod --namespace=loki --containers | sed -r 's|Mi | |' | sed -r 's| ([0-9]+)m|\1|' | tr -s "[:blank:]" ",")"
 
     AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-distributor")
     echo "$AVG_LINE" >> "$csv_filename"
@@ -83,6 +81,8 @@ collect_results() {
     echo "$AVG_LINE" >> "$csv_filename"
     AVG_LINE=$(average_csv_line "$CSV_RESULTS" "write-stress")
     echo "$AVG_LINE" >> "$csv_filename"
+
+    ## echo "$CSV_RESULTS" | sed -r 's|^|'$csv_line_pre'|g' >> "$csv_filename"
 
     RESULTS_COUNT=$(( RESULTS_COUNT + 1 ))
     if (( RESULTS_COUNT > 2 )); then
@@ -144,7 +144,7 @@ auto_deploy_loki() {
   -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
 
   "
-  initial_deploy >/dev/null 2>&1
+  initial_deploy # >/dev/null 2>&1
 
   ## re-deploy with specific configurations
   # per number of replications
@@ -156,7 +156,7 @@ auto_deploy_loki() {
     -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
 
     "
-    deploy_loki_with_configuration "$loki_replications" >/dev/null 2>&1
+    deploy_loki_with_configuration "$loki_replications" # >/dev/null 2>&1
 
     # per number of write replicas
     for ((write_replicas=write_replicas_min;write_replicas<=write_replicas_max;write_replicas+=1)); do
@@ -171,7 +171,7 @@ auto_deploy_loki() {
 
         "
 
-        deploy_stress_with_configuration "$write_batch_size" "$write_msg_per_sec" "$write_replicas" >/dev/null 2>&1
+        deploy_stress_with_configuration "$write_batch_size" "$write_msg_per_sec" "$write_replicas" # >/dev/null 2>&1
         date
         csv_line_pre="$replications,$write_batch_size,$write_msg_per_sec,$write_replicas,"
         collect_results "$csv_line_pre" "$csv_filename"
