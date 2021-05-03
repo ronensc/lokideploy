@@ -34,9 +34,9 @@ Replications maximum --> $replicas_max
 }
 
 initial_deploy() {
-  collector="none"
-  stress_profile="none"
-  replicas=2
+  export collector="none"
+  export stress_profile="none"
+  export replicas=2
   deploy
 }
 
@@ -97,7 +97,7 @@ collect_results() {
 
 
 wait_for_pods_ready() {
-  pods_selector="$@"
+  pods_selector="$*"
   while : ; do
     STATUS=$(oc get pods "$pods_selector" -o jsonpath="{.items[*].status.containerStatuses[*].ready}")
     PODS_NOT_READY=$(echo "$STATUS" | grep "false")
@@ -129,7 +129,7 @@ deploy_loki_with_configuration() {
 auto_deploy_loki() {
 
   # Initial benchmark deployment
-  csv_filename="results/results_on_"$(date +"%m-%d-%y...%T")".csv"
+  csv_filename="results/results_on_$(date +"%m-%d-%y...%T").csv"
   rm -f "$csv_filename"
   touch "$csv_filename"
   date
@@ -173,14 +173,14 @@ auto_deploy_loki() {
 
         deploy_stress_with_configuration "$write_batch_size" "$write_msg_per_sec" "$write_replicas" # >/dev/null 2>&1
         date
-        csv_line_pre="$replications,$write_batch_size,$write_msg_per_sec,$write_replicas,"
+        csv_line_pre="$loki_replications,$write_batch_size,$write_msg_per_sec,$write_replicas,"
         collect_results "$csv_line_pre" "$csv_filename"
       done
     done
   done
 }
 
-AUTO_RUNNING="$(basename $(echo "$0" | sed 's/-//g'))"
+AUTO_RUNNING="$(basename "${0//-}")"
 if [[ "$AUTO_RUNNING" == "auto_execution.sh" ]]
 then
 
@@ -189,7 +189,7 @@ then
 
   # fixed values
   warmup_wait=120
-  deploy_minio=true
+  export deploy_minio=true
   s3_endpoint="s3://user:password@minio.loki.svc.cluster.local:9000/bucket"
 
   #default parameters
