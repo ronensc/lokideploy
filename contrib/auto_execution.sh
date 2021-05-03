@@ -43,6 +43,7 @@ initial_deploy() {
 average_csv_line() {
   csv="$1"
   pod_pre="$2"
+  csv_line_pre="$3"
   AVG_CPU=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$3; ++n} END { print int(sum/n) }')
   AVG_MEM=$(echo "$csv" | grep "$pod_pre" | awk -F',' '{sum+=$4; ++n} END { print int(sum/n) }')
   AVG_CSV="$csv_line_pre$pod_pre-avg,avg-loki,$AVG_CPU,$AVG_MEM"
@@ -77,23 +78,22 @@ collect_results() {
     sleep 60
   done
 
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-distributor")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-ingester")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-querier")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-query-frontend")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "minio")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "grafana")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "write-stress")
-  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-distributor" "$csv_line_pre")
+  echo "$AVG_LINE"  >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-ingester" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-querier" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-query-frontend" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "minio" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "grafana" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "write-stress" "$csv_line_pre")
+  echo "$AVG_LINE" >> "$csv_filename"
 
   ## echo "$CSV_RESULTS" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
-
 }
 
 
