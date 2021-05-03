@@ -132,7 +132,7 @@ auto_deploy_loki() {
   # Initial benchmark deployment
   csv_filename="results/results_on_$(date +"%m-%d-%y...%T").csv"
   rm -f "$csv_filename"
-  touch "$csv_filename"
+  echo "LOKI_REPLICAS,WRITE_BATCH_SIZE,WRITE_MSG_PER_SEC,WRITE_REPLICAS,POD,NAME,CPU(cores),MEMORY(bytes)" > "$csv_filename"
   date
   echo "
 
