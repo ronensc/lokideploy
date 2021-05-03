@@ -58,32 +58,16 @@ collect_results() {
   sleep "$warmup_wait"
   echo -e "===> Waiting for enough results"
   RESULTS_COUNT=0
+  CSV_RESULTS=""
   LOG_RESULTS="
       ======>>> RESULTS of current execution
       -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
       "
   while : ; do
-    RESULTS=$(kubectl top pod --namespace=loki)
-    LOG_RESULTS=$(printf "%s\n\n%s\n" "$LOG_RESULTS" "$RESULTS")
-    CSV_RESULTS="$(kubectl top pod --namespace=loki --containers | sed -r 's|Mi | |' | sed -r 's| ([0-9]+)m|\1|' | tr -s "[:blank:]" ",")"
-
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-distributor")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-ingester")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-querier")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-query-frontend")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "minio")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "grafana")
-    echo "$AVG_LINE" >> "$csv_filename"
-    AVG_LINE=$(average_csv_line "$CSV_RESULTS" "write-stress")
-    echo "$AVG_LINE" >> "$csv_filename"
-
-    ## echo "$CSV_RESULTS" | sed -r 's|^|'$csv_line_pre'|g' >> "$csv_filename"
-
+    RESULTS_LINE=$(kubectl top pod --namespace=loki --containers)
+    LOG_RESULTS=$(printf "%s\n\n%s\n" "$LOG_RESULTS" "$RESULTS_LINE")
+    CSV_RESULTS_LINE="$(kubectl top pod --no-headers=true --namespace=loki --containers | sed -r 's|Mi | |' | sed -r 's| ([0-9]+)m|\1|' | tr -s "[:blank:]" ",")"
+    CSV_RESULTS=$(printf "%s%s" "$CSV_RESULTS" "$CSV_RESULTS_LINE")
     RESULTS_COUNT=$(( RESULTS_COUNT + 1 ))
     if (( RESULTS_COUNT > 2 )); then
       echo "$LOG_RESULTS"
@@ -92,6 +76,23 @@ collect_results() {
     echo "we have $RESULTS_COUNT results - still waiting "
     sleep 60
   done
+
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-distributor")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-ingester")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-querier")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "loki-loki-distributed-query-frontend")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "minio")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "grafana")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+  AVG_LINE=$(average_csv_line "$CSV_RESULTS" "write-stress")
+  echo "$AVG_LINE" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
+
+  ## echo "$CSV_RESULTS" | sed -r 's|^|'"$csv_line_pre"'|g' >> "$csv_filename"
 
 }
 
@@ -166,8 +167,8 @@ auto_deploy_loki() {
         date
         echo "
 
-        ======>>> Deploying with write batch size $write_batch_size
-        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-
+        ======>>> Deploying stress with write batch size:$write_batch_size, write msg per sec:$write_msg_per_sec, write replicas:$write_replicas
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
 
         "
 
