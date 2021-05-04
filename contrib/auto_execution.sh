@@ -1,4 +1,4 @@
-#!/bin/bash
+-write_replicas_max#!/bin/bash
 
 auto_show_usage() {
   echo "
@@ -25,11 +25,16 @@ Note: get more deployment options with -h
 
 Configuration (Automatic execution):
 -=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+Write replication min --> $write_replicas_min
+Write replication max --> $write_replicas_max
 Write batch minimum --> $write_batch_min
 Write batch maximum --> $write_batch_max
 Write batch step --> $write_batch_step
-Replications minimum --> $replicas_min
-Replications maximum --> $replicas_max
+Write messages per sec --> $write_msg_per_sec
+
+Replications minimum --> $loki_replicas_min
+Replications maximum --> $loki_replicas_max
+
 "
 }
 
@@ -130,7 +135,7 @@ deploy_loki_with_configuration() {
 auto_deploy_loki() {
 
   # Initial benchmark deployment
-  csv_filename="results/results_on_$(date +"%m-%d-%y...%T").csv"
+  csv_filename="results/results_on_$(date +"%m-%d-%y...%H.%M.%S").csv"
   rm -f "$csv_filename"
   echo "LOKI_REPLICAS,WRITE_BATCH_SIZE,WRITE_MSG_PER_SEC,WRITE_REPLICAS,POD,NAME,CPU(cores),MEMORY(bytes)" > "$csv_filename"
   date
@@ -210,13 +215,14 @@ then
       --write_batch_max=*) write_batch_max="${i#*=}"; shift ;;
       --write_batch_step=*) write_batch_step="${i#*=}"; shift ;;
       --write_msg_per_sec=*) write_msg_per_sec="${i#*=}"; shift ;;
-      --write_replicas_min=*) write_msg_per_sec="${i#*=}"; shift ;;
-      --write_replicas_max=*) write_msg_per_sec="${i#*=}"; shift ;;
-      --loki_replicas_min=*) replicas_min="${i#*=}"; shift ;;
-      --loki_replicas_max=*) replicas_max="${i#*=}"; shift ;;
+      --write_replicas_min=*) write_replicas_min="${i#*=}"; shift ;;
+      --write_replicas_max=*) write_replicas_max="${i#*=}"; shift ;;
+      --loki_replicas_min=*) loki_replicas_min="${i#*=}"; shift ;;
+      --loki_replicas_max=*) loki_replicas_max="${i#*=}"; shift ;;
       -h|--help|*) auto_show_usage ;;
   esac
   done
 
+  auto_show_configuration
   auto_deploy_loki "$@"
 fi
