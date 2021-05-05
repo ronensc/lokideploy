@@ -1,0 +1,1869 @@
+
+eranra@localhost [1861] ~/lokideploy
+$ ./contrib/auto_execution.sh --loki_replicas_min=2 --loki_replicas_max=8 --write_replicas_min=3 --write_replicas_max=3 --write_msg_per_sec=2000 --write_batch_min=3 --write_batch_max=3 --write_batch_step=1
+./contrib/auto_execution.sh: line 1: -write_replicas_max#!/bin/bash: No such file or directory
+
+Note: get more deployment options with -h
+
+Configuration (Automatic execution):
+-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+Write replication min --> 3
+Write replication max --> 3
+Write batch minimum --> 3
+Write batch maximum --> 3
+Write batch step --> 1
+Write messages per sec --> 2000
+
+Replications minimum --> 2
+Replications maximum --> 8
+
+
+Wed May  5 09:02:38 IDT 2021
+
+
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+  ===>>>> results are also written to results/results_on_05-05-21...09.02.38.csv
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+  ======>>> Performing initial loki benchmark deploy
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+
+Note: get more deployment options with -h
+
+Configuration:
+-=-=-=-=-=-=-
+Logs collector --> none
+Loki microservices replicas --> 2
+Stress profile --> none
+Deploy minio --> true
+S3 End Point  --> s3://user:password@minio.loki.svc.cluster.local:9000/bucket
+
+--> Deleting loki namespace
+project.project.openshift.io "loki" deleted
+==> creating loki project
+Created project loki
+Already on project "loki" on server "https://api.eraichst-050520210810.devcluster.openshift.com:6443".
+==> enable user workload monitoring
+configmap/cluster-monitoring-config created
+adding helm repository
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+"grafana" already exists with the same configuration, skipping
+==> deploy minio
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "minio-service-account"
+serviceaccount/minio-service-account created
+deployment.apps/minio created
+service/minio created
+route.route.openshift.io/minio exposed
+==> deploying loki (using helm) - with 2 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Error: uninstall: Release not loaded: loki: release: not found
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 09:03:09 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+Error from server (NotFound): routes.route.openshift.io "loki-loki-distributed-query-frontend" not found
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+Error from server (NotFound): routes.route.openshift.io "loki-loki-distributed-distributor" not found
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT   TERMINATION   WILDCARD
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                 None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                 None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                  None
+==> deploying grafana (using helm)
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Error: uninstall: Release not loaded: grafana: release: not found
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "grafana"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "grafana" does not exist. Installing it now.
+NAME: grafana
+LAST DEPLOYED: Wed May  5 09:03:29 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace loki grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.loki.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+
+     export POD_NAME=$(kubectl get pods --namespace loki -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace loki port-forward $POD_NAME 3000
+
+3. Login with the password from step 1 and the username: admin
+#################################################################################
+######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+######            the Grafana pod is terminated.                            #####
+#################################################################################
+Error from server (NotFound): routes.route.openshift.io "grafana" not found
+route.route.openshift.io/grafana exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210810.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                     None
+==> Collector will not be deployed (none)
+
+Wed May  5 09:03:35 IDT 2021
+
+
+    ======>>> Deploying with loki replications 2
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 2 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 09:03:47 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210810.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 09:05:51 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:3
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (3 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+serviceaccount/stress-service-account created
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 09:06:45 IDT 2021
+===> Collecting results for (2,3,2000,3,) into results/results_on_05-05-21...09.02.38.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           32Mi
+loki-loki-distributed-distributor-7d7d6988c9-95bxn      loki       251m         393Mi
+loki-loki-distributed-distributor-7d7d6988c9-h4gn4      loki       713m         472Mi
+loki-loki-distributed-ingester-0                        loki       203m         105Mi
+loki-loki-distributed-ingester-1                        loki       226m         89Mi
+loki-loki-distributed-querier-0                         loki       2m           40Mi
+loki-loki-distributed-querier-1                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6p4m7   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sb8j8   loki       0m           29Mi
+minio-78b746f6c5-v9jd9                                  minio      9m           172Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   5m           9Mi
+write-stress-0                                          fedora     218m         502Mi
+write-stress-1                                          fedora     107m         401Mi
+write-stress-2                                          fedora     121m         226Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           32Mi
+loki-loki-distributed-distributor-7d7d6988c9-95bxn      loki       410m         666Mi
+loki-loki-distributed-distributor-7d7d6988c9-h4gn4      loki       667m         655Mi
+loki-loki-distributed-ingester-0                        loki       273m         155Mi
+loki-loki-distributed-ingester-1                        loki       324m         159Mi
+loki-loki-distributed-querier-0                         loki       2m           40Mi
+loki-loki-distributed-querier-1                         loki       1m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6p4m7   loki       1m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sb8j8   loki       0m           29Mi
+minio-78b746f6c5-v9jd9                                  minio      5m           191Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   5m           9Mi
+write-stress-0                                          fedora     315m         788Mi
+write-stress-1                                          fedora     327m         701Mi
+write-stress-2                                          fedora     127m         293Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           32Mi
+loki-loki-distributed-distributor-7d7d6988c9-95bxn      loki       259m         632Mi
+loki-loki-distributed-distributor-7d7d6988c9-h4gn4      loki       603m         584Mi
+loki-loki-distributed-ingester-0                        loki       306m         212Mi
+loki-loki-distributed-ingester-1                        loki       268m         208Mi
+loki-loki-distributed-querier-0                         loki       2m           40Mi
+loki-loki-distributed-querier-1                         loki       3m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6p4m7   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sb8j8   loki       0m           29Mi
+minio-78b746f6c5-v9jd9                                  minio      8m           218Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   5m           9Mi
+write-stress-0                                          fedora     473m         951Mi
+write-stress-1                                          fedora     317m         943Mi
+write-stress-2                                          fedora     142m         356Mi
+Wed May  5 09:10:51 IDT 2021
+
+
+    ======>>> Deploying with loki replications 3
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 3 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 09:11:04 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210810.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 09:15:21 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:3
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (3 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 09:15:52 IDT 2021
+===> Collecting results for (3,3,2000,3,) into results/results_on_05-05-21...09.02.38.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-4jrdz      loki       139m         214Mi
+loki-loki-distributed-distributor-7d7d6988c9-l6zkn      loki       634m         276Mi
+loki-loki-distributed-distributor-7d7d6988c9-sw5jn      loki       282m         172Mi
+loki-loki-distributed-ingester-0                        loki       241m         175Mi
+loki-loki-distributed-ingester-1                        loki       252m         176Mi
+loki-loki-distributed-ingester-2                        loki       333m         88Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       2m           42Mi
+loki-loki-distributed-querier-2                         loki       2m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-687bl   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-mncl6   loki       1m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pcx4f   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      1m           280Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   5m           10Mi
+write-stress-0                                          fedora     356m         137Mi
+write-stress-1                                          fedora     280m         261Mi
+write-stress-2                                          fedora     605m         239Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-4jrdz      loki       146m         198Mi
+loki-loki-distributed-distributor-7d7d6988c9-l6zkn      loki       773m         194Mi
+loki-loki-distributed-distributor-7d7d6988c9-sw5jn      loki       390m         175Mi
+loki-loki-distributed-ingester-0                        loki       409m         234Mi
+loki-loki-distributed-ingester-1                        loki       268m         224Mi
+loki-loki-distributed-ingester-2                        loki       315m         141Mi
+loki-loki-distributed-querier-0                         loki       4m           43Mi
+loki-loki-distributed-querier-1                         loki       3m           41Mi
+loki-loki-distributed-querier-2                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-687bl   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-mncl6   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pcx4f   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      10m          317Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   6m           11Mi
+write-stress-0                                          fedora     347m         261Mi
+write-stress-1                                          fedora     267m         473Mi
+write-stress-2                                          fedora     253m         454Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-4jrdz      loki       204m         201Mi
+loki-loki-distributed-distributor-7d7d6988c9-l6zkn      loki       581m         201Mi
+loki-loki-distributed-distributor-7d7d6988c9-sw5jn      loki       517m         179Mi
+loki-loki-distributed-ingester-0                        loki       315m         278Mi
+loki-loki-distributed-ingester-1                        loki       374m         300Mi
+loki-loki-distributed-ingester-2                        loki       287m         221Mi
+loki-loki-distributed-querier-0                         loki       3m           42Mi
+loki-loki-distributed-querier-1                         loki       3m           40Mi
+loki-loki-distributed-querier-2                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-687bl   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-mncl6   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pcx4f   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      6m           360Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   6m           11Mi
+write-stress-0                                          fedora     348m         446Mi
+write-stress-1                                          fedora     492m         675Mi
+write-stress-2                                          fedora     201m         592Mi
+Wed May  5 09:19:59 IDT 2021
+
+
+    ======>>> Deploying with loki replications 4
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 4 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 09:20:15 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210810.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 09:25:01 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:3
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (3 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 09:25:31 IDT 2021
+===> Collecting results for (4,3,2000,3,) into results/results_on_05-05-21...09.02.38.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-7724n      loki       45m          283Mi
+loki-loki-distributed-distributor-7d7d6988c9-7mktb      loki       811m         199Mi
+loki-loki-distributed-distributor-7d7d6988c9-xbp4t      loki       90m          293Mi
+loki-loki-distributed-ingester-0                        loki       152m         228Mi
+loki-loki-distributed-ingester-1                        loki       243m         238Mi
+loki-loki-distributed-ingester-2                        loki       350m         191Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       2m           43Mi
+loki-loki-distributed-querier-2                         loki       4m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4z57r   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-64lvw   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rvrxg   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      0m           482Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     296m         247Mi
+write-stress-1                                          fedora     603m         212Mi
+write-stress-2                                          fedora     694m         193Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-7724n      loki       575m         170Mi
+loki-loki-distributed-distributor-7d7d6988c9-7mktb      loki       382m         206Mi
+loki-loki-distributed-distributor-7d7d6988c9-xbp4t      loki       340m         193Mi
+loki-loki-distributed-ingester-0                        loki       400m         286Mi
+loki-loki-distributed-ingester-1                        loki       386m         303Mi
+loki-loki-distributed-ingester-2                        loki       245m         229Mi
+loki-loki-distributed-querier-0                         loki       2m           43Mi
+loki-loki-distributed-querier-1                         loki       3m           43Mi
+loki-loki-distributed-querier-2                         loki       3m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4z57r   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-64lvw   loki       1m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rvrxg   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      8m           528Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     207m         397Mi
+write-stress-1                                          fedora     270m         388Mi
+write-stress-2                                          fedora     317m         446Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-zznkm                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-7724n      loki       380m         177Mi
+loki-loki-distributed-distributor-7d7d6988c9-7mktb      loki       981m         210Mi
+loki-loki-distributed-distributor-7d7d6988c9-xbp4t      loki       259m         197Mi
+loki-loki-distributed-ingester-0                        loki       321m         338Mi
+loki-loki-distributed-ingester-1                        loki       337m         350Mi
+loki-loki-distributed-ingester-2                        loki       319m         292Mi
+loki-loki-distributed-querier-0                         loki       2m           43Mi
+loki-loki-distributed-querier-1                         loki       3m           43Mi
+loki-loki-distributed-querier-2                         loki       2m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4z57r   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-64lvw   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rvrxg   loki       0m           30Mi
+minio-78b746f6c5-v9jd9                                  minio      5m           558Mi
+minio-78b746f6c5-v9jd9                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     298m         600Mi
+write-stress-1                                          fedora     302m         582Mi
+write-stress-2                                          fedora     376m         578Mi
+Wed May  5 09:29:38 IDT 2021
+
+
+    ======>>> Deploying with loki replications 5
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 5 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 09:29:53 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210810.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210810.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210810.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210810.devcluster.openshift.com                                         minio                                  www                     None
+^C
+eranra@localhost [1862] ~/lokideploy
+$ go get github.com/sirupsen/logrus
+
+eranra@localhost [1862] ~/lokideploy
+$  https://console-openshift-console.apps.eraichst-050520210941.devcluster.openshift.com
+-bash: https://console-openshift-console.apps.eraichst-050520210941.devcluster.openshift.com: No such file or directory
+
+eranra@localhost [1862] ~/lokideploy
+$  user: kubeadmin password: e3f4I-P2eU6-9Ixv5-NRi48
+bash: user:: command not found...
+
+eranra@localhost [1862] ~/lokideploy
+$
+
+eranra@localhost [1862] ~/lokideploy
+$  export KUBECONFIG=$HOME/openshift/openshift_deploy/auth/kubeconfig
+
+eranra@localhost [1862] ~/lokideploy
+$  oc login -u kubeadmin -p e3f4I-P2eU6-9Ixv5-NRi48
+Login successful.
+
+You have access to 62 projects, the list has been suppressed. You can list all projects with ' projects'
+
+Using project "default".
+
+eranra@localhost [1862] ~/lokideploy
+$
+
+eranra@localhost [1862] ~/lokideploy
+$ ./contrib/auto_execution.sh --loki_replicas_min=2 --loki_replicas_max=8 --write_replicas_min=6 --write_replicas_max=6 --write_msg_per_sec=2000 --write_batch_min=3 --write_batch_max=3 --write_batch_step=1
+./contrib/auto_execution.sh: line 1: -write_replicas_max#!/bin/bash: No such file or directory
+
+Note: get more deployment options with -h
+
+Configuration (Automatic execution):
+-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+Write replication min --> 6
+Write replication max --> 6
+Write batch minimum --> 3
+Write batch maximum --> 3
+Write batch step --> 1
+Write messages per sec --> 2000
+
+Replications minimum --> 2
+Replications maximum --> 8
+
+
+Wed May  5 10:34:33 IDT 2021
+
+
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+  ===>>>> results are also written to results/results_on_05-05-21...10.34.33.csv
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+  ======>>> Performing initial loki benchmark deploy
+  -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+
+Note: get more deployment options with -h
+
+Configuration:
+-=-=-=-=-=-=-
+Logs collector --> none
+Loki microservices replicas --> 2
+Stress profile --> none
+Deploy minio --> true
+S3 End Point  --> s3://user:password@minio.loki.svc.cluster.local:9000/bucket
+
+==> creating loki project
+Created project loki
+Now using project "loki" on server "https://api.eraichst-050520210941.devcluster.openshift.com:6443".
+==> enable user workload monitoring
+configmap/cluster-monitoring-config created
+adding helm repository
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+"grafana" already exists with the same configuration, skipping
+==> deploy minio
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "minio-service-account"
+serviceaccount/minio-service-account created
+deployment.apps/minio created
+service/minio created
+route.route.openshift.io/minio exposed
+==> deploying loki (using helm) - with 2 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Error: uninstall: Release not loaded: loki: release: not found
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 10:34:59 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+Error from server (NotFound): routes.route.openshift.io "loki-loki-distributed-query-frontend" not found
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+Error from server (NotFound): routes.route.openshift.io "loki-loki-distributed-distributor" not found
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT   TERMINATION   WILDCARD
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                 None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                 None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                  None
+==> deploying grafana (using helm)
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Error: uninstall: Release not loaded: grafana: release: not found
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "grafana"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "grafana" does not exist. Installing it now.
+NAME: grafana
+LAST DEPLOYED: Wed May  5 10:35:24 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace loki grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.loki.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+
+     export POD_NAME=$(kubectl get pods --namespace loki -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace loki port-forward $POD_NAME 3000
+
+3. Login with the password from step 1 and the username: admin
+#################################################################################
+######   WARNING: Persistence is disabled!!! You will lose your data when   #####
+######            the Grafana pod is terminated.                            #####
+#################################################################################
+Error from server (NotFound): routes.route.openshift.io "grafana" not found
+route.route.openshift.io/grafana exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+==> Collector will not be deployed (none)
+
+Wed May  5 10:35:33 IDT 2021
+
+
+    ======>>> Deploying with loki replications 2
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 2 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 10:36:04 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 10:38:19 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+serviceaccount/stress-service-account created
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 10:39:50 IDT 2021
+===> Collecting results for (2,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-sn7m7      loki       276m         1066Mi
+loki-loki-distributed-distributor-7d7d6988c9-xlcdf      loki       976m         1239Mi
+loki-loki-distributed-ingester-0                        loki       523m         138Mi
+loki-loki-distributed-ingester-1                        loki       609m         129Mi
+loki-loki-distributed-querier-0                         loki       2m           44Mi
+loki-loki-distributed-querier-1                         loki       1m           41Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4ctzp   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vmxr2   loki       0m           33Mi
+minio-78b746f6c5-rcbqc                                  minio      1m           171Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           9Mi
+write-stress-0                                          fedora     192m         370Mi
+write-stress-1                                          fedora     106m         521Mi
+write-stress-2                                          fedora     315m         574Mi
+write-stress-3                                          fedora     96m          463Mi
+write-stress-4                                          fedora     168m         545Mi
+write-stress-5                                          fedora     147m         413Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-sn7m7      loki       364m         1502Mi
+loki-loki-distributed-distributor-7d7d6988c9-xlcdf      loki       695m         1480Mi
+loki-loki-distributed-ingester-0                        loki       382m         199Mi
+loki-loki-distributed-ingester-1                        loki       369m         177Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       3m           40Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4ctzp   loki       1m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vmxr2   loki       0m           32Mi
+minio-78b746f6c5-rcbqc                                  minio      2m           192Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   5m           9Mi
+write-stress-0                                          fedora     141m         435Mi
+write-stress-1                                          fedora     272m         757Mi
+write-stress-2                                          fedora     487m         713Mi
+write-stress-3                                          fedora     420m         717Mi
+write-stress-4                                          fedora     329m         769Mi
+write-stress-5                                          fedora     346m         686Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-sn7m7      loki       424m         1285Mi
+loki-loki-distributed-distributor-7d7d6988c9-xlcdf      loki       800m         1329Mi
+loki-loki-distributed-ingester-0                        loki       226m         229Mi
+loki-loki-distributed-ingester-1                        loki       325m         230Mi
+loki-loki-distributed-querier-0                         loki       3m           42Mi
+loki-loki-distributed-querier-1                         loki       2m           40Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4ctzp   loki       0m           30Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vmxr2   loki       0m           32Mi
+minio-78b746f6c5-rcbqc                                  minio      3m           225Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   5m           10Mi
+write-stress-0                                          fedora     142m         493Mi
+write-stress-1                                          fedora     519m         951Mi
+write-stress-2                                          fedora     273m         814Mi
+write-stress-3                                          fedora     393m         963Mi
+write-stress-4                                          fedora     280m         927Mi
+write-stress-5                                          fedora     265m         892Mi
+Wed May  5 10:43:56 IDT 2021
+
+
+    ======>>> Deploying with loki replications 3
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 3 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 10:44:10 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 10:47:32 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 10:48:14 IDT 2021
+===> Collecting results for (3,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-727zg      loki       385m         776Mi
+loki-loki-distributed-distributor-7d7d6988c9-brxpc      loki       720m         676Mi
+loki-loki-distributed-distributor-7d7d6988c9-zzh4n      loki       189m         477Mi
+loki-loki-distributed-ingester-0                        loki       165m         203Mi
+loki-loki-distributed-ingester-1                        loki       235m         200Mi
+loki-loki-distributed-ingester-2                        loki       142m         99Mi
+loki-loki-distributed-querier-0                         loki       3m           45Mi
+loki-loki-distributed-querier-1                         loki       2m           42Mi
+loki-loki-distributed-querier-2                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4v2rq   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6spxz   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-94xvf   loki       0m           32Mi
+minio-78b746f6c5-rcbqc                                  minio      0m           317Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           10Mi
+write-stress-0                                          fedora     300m         179Mi
+write-stress-1                                          fedora     204m         233Mi
+write-stress-2                                          fedora     1067m        166Mi
+write-stress-3                                          fedora     754m         239Mi
+write-stress-4                                          fedora     137m         128Mi
+write-stress-5                                          fedora     505m         141Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-727zg      loki       373m         488Mi
+loki-loki-distributed-distributor-7d7d6988c9-brxpc      loki       610m         444Mi
+loki-loki-distributed-distributor-7d7d6988c9-zzh4n      loki       669m         400Mi
+loki-loki-distributed-ingester-0                        loki       240m         245Mi
+loki-loki-distributed-ingester-1                        loki       240m         246Mi
+loki-loki-distributed-ingester-2                        loki       528m         178Mi
+loki-loki-distributed-querier-0                         loki       2m           45Mi
+loki-loki-distributed-querier-1                         loki       2m           43Mi
+loki-loki-distributed-querier-2                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4v2rq   loki       1m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6spxz   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-94xvf   loki       0m           32Mi
+minio-78b746f6c5-rcbqc                                  minio      2m           348Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           10Mi
+write-stress-0                                          fedora     377m         491Mi
+write-stress-1                                          fedora     301m         472Mi
+write-stress-2                                          fedora     474m         292Mi
+write-stress-3                                          fedora     306m         456Mi
+write-stress-4                                          fedora     242m         461Mi
+write-stress-5                                          fedora     320m         392Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-727zg      loki       476m         496Mi
+loki-loki-distributed-distributor-7d7d6988c9-brxpc      loki       1000m        460Mi
+loki-loki-distributed-distributor-7d7d6988c9-zzh4n      loki       740m         410Mi
+loki-loki-distributed-ingester-0                        loki       478m         308Mi
+loki-loki-distributed-ingester-1                        loki       438m         311Mi
+loki-loki-distributed-ingester-2                        loki       621m         245Mi
+loki-loki-distributed-querier-0                         loki       3m           45Mi
+loki-loki-distributed-querier-1                         loki       4m           42Mi
+loki-loki-distributed-querier-2                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4v2rq   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6spxz   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-94xvf   loki       1m           32Mi
+minio-78b746f6c5-rcbqc                                  minio      8m           380Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           10Mi
+write-stress-0                                          fedora     664m         694Mi
+write-stress-1                                          fedora     544m         748Mi
+write-stress-2                                          fedora     529m         493Mi
+write-stress-3                                          fedora     461m         658Mi
+write-stress-4                                          fedora     410m         672Mi
+write-stress-5                                          fedora     440m         576Mi
+Wed May  5 10:52:21 IDT 2021
+
+
+    ======>>> Deploying with loki replications 4
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 4 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 10:52:34 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 10:58:00 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 10:58:44 IDT 2021
+===> Collecting results for (4,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-c6xrp      loki       322m         463Mi
+loki-loki-distributed-distributor-7d7d6988c9-g2m5j      loki       24m          592Mi
+loki-loki-distributed-distributor-7d7d6988c9-mz6fp      loki       199m         501Mi
+loki-loki-distributed-distributor-7d7d6988c9-wj94s      loki       694m         561Mi
+loki-loki-distributed-ingester-0                        loki       50m          280Mi
+loki-loki-distributed-ingester-1                        loki       119m         262Mi
+loki-loki-distributed-ingester-2                        loki       54m          156Mi
+loki-loki-distributed-ingester-3                        loki       2m           41Mi
+loki-loki-distributed-querier-0                         loki       2m           43Mi
+loki-loki-distributed-querier-1                         loki       4m           44Mi
+loki-loki-distributed-querier-2                         loki       3m           44Mi
+loki-loki-distributed-querier-3                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4tvfs   loki       1m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6nmpb   loki       0m           35Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pbsnb   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-xfhnn   loki       1m           33Mi
+minio-78b746f6c5-rcbqc                                  minio      3m           545Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   6m           11Mi
+write-stress-0                                          fedora     696m         281Mi
+write-stress-1                                          fedora     267m         146Mi
+write-stress-2                                          fedora     754m         182Mi
+write-stress-3                                          fedora     278m         176Mi
+write-stress-4                                          fedora     225m         262Mi
+write-stress-5                                          fedora     155m         188Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-c6xrp      loki       511m         332Mi
+loki-loki-distributed-distributor-7d7d6988c9-g2m5j      loki       430m         401Mi
+loki-loki-distributed-distributor-7d7d6988c9-mz6fp      loki       294m         314Mi
+loki-loki-distributed-distributor-7d7d6988c9-wj94s      loki       641m         365Mi
+loki-loki-distributed-ingester-0                        loki       511m         338Mi
+loki-loki-distributed-ingester-1                        loki       398m         335Mi
+loki-loki-distributed-ingester-2                        loki       359m         237Mi
+loki-loki-distributed-ingester-3                        loki       4m           44Mi
+loki-loki-distributed-querier-0                         loki       3m           45Mi
+loki-loki-distributed-querier-1                         loki       3m           45Mi
+loki-loki-distributed-querier-2                         loki       2m           43Mi
+loki-loki-distributed-querier-3                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4tvfs   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6nmpb   loki       1m           35Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pbsnb   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-xfhnn   loki       0m           33Mi
+minio-78b746f6c5-rcbqc                                  minio      5m           574Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   6m           11Mi
+write-stress-0                                          fedora     341m         505Mi
+write-stress-1                                          fedora     289m         314Mi
+write-stress-2                                          fedora     325m         520Mi
+write-stress-3                                          fedora     429m         482Mi
+write-stress-4                                          fedora     314m         467Mi
+write-stress-5                                          fedora     275m         405Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           33Mi
+loki-loki-distributed-distributor-7d7d6988c9-c6xrp      loki       453m         343Mi
+loki-loki-distributed-distributor-7d7d6988c9-g2m5j      loki       620m         406Mi
+loki-loki-distributed-distributor-7d7d6988c9-mz6fp      loki       147m         319Mi
+loki-loki-distributed-distributor-7d7d6988c9-wj94s      loki       744m         376Mi
+loki-loki-distributed-ingester-0                        loki       428m         389Mi
+loki-loki-distributed-ingester-1                        loki       283m         374Mi
+loki-loki-distributed-ingester-2                        loki       427m         294Mi
+loki-loki-distributed-ingester-3                        loki       3m           42Mi
+loki-loki-distributed-querier-0                         loki       2m           45Mi
+loki-loki-distributed-querier-1                         loki       3m           45Mi
+loki-loki-distributed-querier-2                         loki       1m           43Mi
+loki-loki-distributed-querier-3                         loki       3m           43Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4tvfs   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6nmpb   loki       0m           35Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-pbsnb   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-xfhnn   loki       0m           33Mi
+minio-78b746f6c5-rcbqc                                  minio      7m           614Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   6m           11Mi
+write-stress-0                                          fedora     535m         704Mi
+write-stress-1                                          fedora     238m         503Mi
+write-stress-2                                          fedora     540m         667Mi
+write-stress-3                                          fedora     525m         660Mi
+write-stress-4                                          fedora     518m         642Mi
+write-stress-5                                          fedora     374m         646Mi
+Wed May  5 11:02:51 IDT 2021
+
+
+    ======>>> Deploying with loki replications 5
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 5 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 11:03:04 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 11:09:15 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 11:09:50 IDT 2021
+===> Collecting results for (5,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-lj4np      loki       55m          561Mi
+loki-loki-distributed-distributor-7d7d6988c9-nnq5j      loki       385m         389Mi
+loki-loki-distributed-distributor-7d7d6988c9-q59qb      loki       161m         294Mi
+loki-loki-distributed-distributor-7d7d6988c9-r7w8j      loki       239m         226Mi
+loki-loki-distributed-distributor-7d7d6988c9-s4496      loki       29m          431Mi
+loki-loki-distributed-ingester-0                        loki       405m         321Mi
+loki-loki-distributed-ingester-1                        loki       188m         316Mi
+loki-loki-distributed-ingester-2                        loki       3m           108Mi
+loki-loki-distributed-ingester-3                        loki       2m           105Mi
+loki-loki-distributed-ingester-4                        loki       253m         56Mi
+loki-loki-distributed-querier-0                         loki       3m           45Mi
+loki-loki-distributed-querier-1                         loki       4m           40Mi
+loki-loki-distributed-querier-2                         loki       2m           44Mi
+loki-loki-distributed-querier-3                         loki       3m           44Mi
+loki-loki-distributed-querier-4                         loki       4m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6f9vw   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8br2d   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cdlf7   loki       0m           29Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jcmms   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jdrfd   loki       1m           35Mi
+minio-78b746f6c5-rcbqc                                  minio      2m           793Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   7m           11Mi
+write-stress-0                                          fedora     1016m        177Mi
+write-stress-1                                          fedora     466m         309Mi
+write-stress-2                                          fedora     437m         261Mi
+write-stress-3                                          fedora     480m         254Mi
+write-stress-4                                          fedora     31m          153Mi
+write-stress-5                                          fedora     348m         150Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-lj4np      loki       486m         372Mi
+loki-loki-distributed-distributor-7d7d6988c9-nnq5j      loki       325m         246Mi
+loki-loki-distributed-distributor-7d7d6988c9-q59qb      loki       439m         222Mi
+loki-loki-distributed-distributor-7d7d6988c9-r7w8j      loki       356m         233Mi
+loki-loki-distributed-distributor-7d7d6988c9-s4496      loki       239m         280Mi
+loki-loki-distributed-ingester-0                        loki       446m         376Mi
+loki-loki-distributed-ingester-1                        loki       381m         367Mi
+loki-loki-distributed-ingester-2                        loki       3m           96Mi
+loki-loki-distributed-ingester-3                        loki       5m           120Mi
+loki-loki-distributed-ingester-4                        loki       459m         112Mi
+loki-loki-distributed-querier-0                         loki       2m           47Mi
+loki-loki-distributed-querier-1                         loki       3m           40Mi
+loki-loki-distributed-querier-2                         loki       3m           44Mi
+loki-loki-distributed-querier-3                         loki       4m           43Mi
+loki-loki-distributed-querier-4                         loki       3m           46Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6f9vw   loki       1m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8br2d   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cdlf7   loki       0m           29Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jcmms   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jdrfd   loki       0m           36Mi
+minio-78b746f6c5-rcbqc                                  minio      4m           840Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   7m           11Mi
+write-stress-0                                          fedora     626m         424Mi
+write-stress-1                                          fedora     324m         499Mi
+write-stress-2                                          fedora     714m         418Mi
+write-stress-3                                          fedora     304m         463Mi
+write-stress-4                                          fedora     235m         407Mi
+write-stress-5                                          fedora     576m         349Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-lj4np      loki       209m         381Mi
+loki-loki-distributed-distributor-7d7d6988c9-nnq5j      loki       323m         253Mi
+loki-loki-distributed-distributor-7d7d6988c9-q59qb      loki       98m          227Mi
+loki-loki-distributed-distributor-7d7d6988c9-r7w8j      loki       272m         239Mi
+loki-loki-distributed-distributor-7d7d6988c9-s4496      loki       202m         288Mi
+loki-loki-distributed-ingester-0                        loki       396m         433Mi
+loki-loki-distributed-ingester-1                        loki       413m         451Mi
+loki-loki-distributed-ingester-2                        loki       2m           96Mi
+loki-loki-distributed-ingester-3                        loki       1m           107Mi
+loki-loki-distributed-ingester-4                        loki       508m         192Mi
+loki-loki-distributed-querier-0                         loki       3m           48Mi
+loki-loki-distributed-querier-1                         loki       5m           40Mi
+loki-loki-distributed-querier-2                         loki       2m           44Mi
+loki-loki-distributed-querier-3                         loki       1m           43Mi
+loki-loki-distributed-querier-4                         loki       4m           47Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-6f9vw   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8br2d   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cdlf7   loki       0m           29Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jcmms   loki       1m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jdrfd   loki       1m           33Mi
+minio-78b746f6c5-rcbqc                                  minio      3m           878Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     672m         577Mi
+write-stress-1                                          fedora     518m         682Mi
+write-stress-2                                          fedora     576m         676Mi
+write-stress-3                                          fedora     585m         696Mi
+write-stress-4                                          fedora     498m         649Mi
+write-stress-5                                          fedora     591m         562Mi
+Wed May  5 11:13:57 IDT 2021
+
+
+    ======>>> Deploying with loki replications 6
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 6 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 11:14:11 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 11:22:04 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 11:22:40 IDT 2021
+===> Collecting results for (6,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-7nq8s      loki       141m         389Mi
+loki-loki-distributed-distributor-7d7d6988c9-9knjh      loki       324m         248Mi
+loki-loki-distributed-distributor-7d7d6988c9-c7z69      loki       99m          383Mi
+loki-loki-distributed-distributor-7d7d6988c9-d22q4      loki       122m         405Mi
+loki-loki-distributed-distributor-7d7d6988c9-prpbd      loki       2m           307Mi
+loki-loki-distributed-distributor-7d7d6988c9-s6d5k      loki       387m         280Mi
+loki-loki-distributed-ingester-0                        loki       2m           170Mi
+loki-loki-distributed-ingester-1                        loki       229m         400Mi
+loki-loki-distributed-ingester-2                        loki       10m          148Mi
+loki-loki-distributed-ingester-3                        loki       351m         210Mi
+loki-loki-distributed-ingester-4                        loki       3m           119Mi
+loki-loki-distributed-ingester-5                        loki       131m         54Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       4m           44Mi
+loki-loki-distributed-querier-2                         loki       3m           42Mi
+loki-loki-distributed-querier-3                         loki       4m           46Mi
+loki-loki-distributed-querier-4                         loki       3m           46Mi
+loki-loki-distributed-querier-5                         loki       1m           46Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cqg4v   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-dzlql   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fk6g5   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-l6sg9   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sl597   loki       0m           36Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-tcfpz   loki       1m           35Mi
+minio-78b746f6c5-rcbqc                                  minio      9m           1107Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     241m         259Mi
+write-stress-1                                          fedora     495m         168Mi
+write-stress-2                                          fedora     128m         158Mi
+write-stress-3                                          fedora     766m         154Mi
+write-stress-4                                          fedora     729m         141Mi
+write-stress-5                                          fedora     579m         200Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-7nq8s      loki       164m         251Mi
+loki-loki-distributed-distributor-7d7d6988c9-9knjh      loki       125m         154Mi
+loki-loki-distributed-distributor-7d7d6988c9-c7z69      loki       307m         239Mi
+loki-loki-distributed-distributor-7d7d6988c9-d22q4      loki       402m         279Mi
+loki-loki-distributed-distributor-7d7d6988c9-prpbd      loki       136m         169Mi
+loki-loki-distributed-distributor-7d7d6988c9-s6d5k      loki       320m         219Mi
+loki-loki-distributed-ingester-0                        loki       1m           170Mi
+loki-loki-distributed-ingester-1                        loki       364m         447Mi
+loki-loki-distributed-ingester-2                        loki       3m           148Mi
+loki-loki-distributed-ingester-3                        loki       417m         252Mi
+loki-loki-distributed-ingester-4                        loki       2m           108Mi
+loki-loki-distributed-ingester-5                        loki       375m         103Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       5m           44Mi
+loki-loki-distributed-querier-2                         loki       4m           42Mi
+loki-loki-distributed-querier-3                         loki       3m           46Mi
+loki-loki-distributed-querier-4                         loki       2m           45Mi
+loki-loki-distributed-querier-5                         loki       3m           45Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cqg4v   loki       0m           29Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-dzlql   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fk6g5   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-l6sg9   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sl597   loki       0m           36Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-tcfpz   loki       0m           35Mi
+minio-78b746f6c5-rcbqc                                  minio      4m           1135Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     244m         484Mi
+write-stress-1                                          fedora     404m         451Mi
+write-stress-2                                          fedora     322m         446Mi
+write-stress-3                                          fedora     244m         307Mi
+write-stress-4                                          fedora     425m         378Mi
+write-stress-5                                          fedora     256m         353Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-7nq8s      loki       292m         264Mi
+loki-loki-distributed-distributor-7d7d6988c9-9knjh      loki       224m         158Mi
+loki-loki-distributed-distributor-7d7d6988c9-c7z69      loki       182m         246Mi
+loki-loki-distributed-distributor-7d7d6988c9-d22q4      loki       81m          285Mi
+loki-loki-distributed-distributor-7d7d6988c9-prpbd      loki       212m         175Mi
+loki-loki-distributed-distributor-7d7d6988c9-s6d5k      loki       188m         225Mi
+loki-loki-distributed-ingester-0                        loki       3m           170Mi
+loki-loki-distributed-ingester-1                        loki       427m         493Mi
+loki-loki-distributed-ingester-2                        loki       5m           145Mi
+loki-loki-distributed-ingester-3                        loki       451m         300Mi
+loki-loki-distributed-ingester-4                        loki       2m           108Mi
+loki-loki-distributed-ingester-5                        loki       391m         145Mi
+loki-loki-distributed-querier-0                         loki       2m           44Mi
+loki-loki-distributed-querier-1                         loki       3m           44Mi
+loki-loki-distributed-querier-2                         loki       3m           41Mi
+loki-loki-distributed-querier-3                         loki       4m           45Mi
+loki-loki-distributed-querier-4                         loki       3m           44Mi
+loki-loki-distributed-querier-5                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-cqg4v   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-dzlql   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fk6g5   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-l6sg9   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-sl597   loki       0m           36Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-tcfpz   loki       0m           35Mi
+minio-78b746f6c5-rcbqc                                  minio      3m           1180Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   8m           11Mi
+write-stress-0                                          fedora     383m         643Mi
+write-stress-1                                          fedora     549m         632Mi
+write-stress-2                                          fedora     453m         668Mi
+write-stress-3                                          fedora     250m         523Mi
+write-stress-4                                          fedora     387m         529Mi
+write-stress-5                                          fedora     416m         606Mi
+Wed May  5 11:26:47 IDT 2021
+
+
+    ======>>> Deploying with loki replications 7
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 7 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 11:27:01 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 11:35:54 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 11:36:27 IDT 2021
+===> Collecting results for (7,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-45l4w      loki       197m         306Mi
+loki-loki-distributed-distributor-7d7d6988c9-78pgx      loki       252m         259Mi
+loki-loki-distributed-distributor-7d7d6988c9-dwgrc      loki       88m          288Mi
+loki-loki-distributed-distributor-7d7d6988c9-gxjd6      loki       610m         155Mi
+loki-loki-distributed-distributor-7d7d6988c9-qknls      loki       23m          308Mi
+loki-loki-distributed-distributor-7d7d6988c9-sp9tb      loki       164m         162Mi
+loki-loki-distributed-distributor-7d7d6988c9-tnvzm      loki       200m         180Mi
+loki-loki-distributed-ingester-0                        loki       3m           290Mi
+loki-loki-distributed-ingester-1                        loki       382m         450Mi
+loki-loki-distributed-ingester-2                        loki       298m         384Mi
+loki-loki-distributed-ingester-3                        loki       4m           40Mi
+loki-loki-distributed-ingester-4                        loki       3m           41Mi
+loki-loki-distributed-ingester-5                        loki       317m         161Mi
+loki-loki-distributed-ingester-6                        loki       2m           40Mi
+loki-loki-distributed-querier-0                         loki       3m           44Mi
+loki-loki-distributed-querier-1                         loki       3m           46Mi
+loki-loki-distributed-querier-2                         loki       4m           43Mi
+loki-loki-distributed-querier-3                         loki       3m           45Mi
+loki-loki-distributed-querier-4                         loki       3m           44Mi
+loki-loki-distributed-querier-5                         loki       3m           46Mi
+loki-loki-distributed-querier-6                         loki       3m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4chct   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5x79g   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-c7v5d   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jfcmv   loki       1m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-kvn6m   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-qksqx   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-ww25n   loki       1m           31Mi
+minio-78b746f6c5-rcbqc                                  minio      4m           1453Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   8m           11Mi
+write-stress-0                                          fedora     302m         183Mi
+write-stress-1                                          fedora     266m         292Mi
+write-stress-2                                          fedora     222m         233Mi
+write-stress-3                                          fedora     697m         246Mi
+write-stress-4                                          fedora     433m         226Mi
+write-stress-5                                          fedora     122m         275Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-45l4w      loki       201m         245Mi
+loki-loki-distributed-distributor-7d7d6988c9-78pgx      loki       185m         266Mi
+loki-loki-distributed-distributor-7d7d6988c9-dwgrc      loki       286m         185Mi
+loki-loki-distributed-distributor-7d7d6988c9-gxjd6      loki       150m         158Mi
+loki-loki-distributed-distributor-7d7d6988c9-qknls      loki       514m         181Mi
+loki-loki-distributed-distributor-7d7d6988c9-sp9tb      loki       140m         160Mi
+loki-loki-distributed-distributor-7d7d6988c9-tnvzm      loki       100m         183Mi
+loki-loki-distributed-ingester-0                        loki       15m          242Mi
+loki-loki-distributed-ingester-1                        loki       714m         509Mi
+loki-loki-distributed-ingester-2                        loki       418m         443Mi
+loki-loki-distributed-ingester-3                        loki       3m           40Mi
+loki-loki-distributed-ingester-4                        loki       2m           41Mi
+loki-loki-distributed-ingester-5                        loki       409m         214Mi
+loki-loki-distributed-ingester-6                        loki       3m           40Mi
+loki-loki-distributed-querier-0                         loki       4m           45Mi
+loki-loki-distributed-querier-1                         loki       3m           45Mi
+loki-loki-distributed-querier-2                         loki       2m           43Mi
+loki-loki-distributed-querier-3                         loki       5m           45Mi
+loki-loki-distributed-querier-4                         loki       3m           43Mi
+loki-loki-distributed-querier-5                         loki       2m           45Mi
+loki-loki-distributed-querier-6                         loki       4m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4chct   loki       0m           31Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5x79g   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-c7v5d   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jfcmv   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-kvn6m   loki       1m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-qksqx   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-ww25n   loki       0m           31Mi
+minio-78b746f6c5-rcbqc                                  minio      9m           1480Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     351m         386Mi
+write-stress-1                                          fedora     334m         507Mi
+write-stress-2                                          fedora     324m         460Mi
+write-stress-3                                          fedora     243m         464Mi
+write-stress-4                                          fedora     253m         468Mi
+write-stress-5                                          fedora     492m         303Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-45l4w      loki       146m         254Mi
+loki-loki-distributed-distributor-7d7d6988c9-78pgx      loki       206m         272Mi
+loki-loki-distributed-distributor-7d7d6988c9-dwgrc      loki       216m         188Mi
+loki-loki-distributed-distributor-7d7d6988c9-gxjd6      loki       95m          161Mi
+loki-loki-distributed-distributor-7d7d6988c9-qknls      loki       806m         190Mi
+loki-loki-distributed-distributor-7d7d6988c9-sp9tb      loki       301m         164Mi
+loki-loki-distributed-distributor-7d7d6988c9-tnvzm      loki       128m         186Mi
+loki-loki-distributed-ingester-0                        loki       4m           242Mi
+loki-loki-distributed-ingester-1                        loki       659m         562Mi
+loki-loki-distributed-ingester-2                        loki       396m         487Mi
+loki-loki-distributed-ingester-3                        loki       2m           40Mi
+loki-loki-distributed-ingester-4                        loki       2m           41Mi
+loki-loki-distributed-ingester-5                        loki       475m         265Mi
+loki-loki-distributed-ingester-6                        loki       2m           40Mi
+loki-loki-distributed-querier-0                         loki       3m           45Mi
+loki-loki-distributed-querier-1                         loki       3m           45Mi
+loki-loki-distributed-querier-2                         loki       3m           43Mi
+loki-loki-distributed-querier-3                         loki       3m           45Mi
+loki-loki-distributed-querier-4                         loki       4m           43Mi
+loki-loki-distributed-querier-5                         loki       3m           44Mi
+loki-loki-distributed-querier-6                         loki       2m           42Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-4chct   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5x79g   loki       1m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-c7v5d   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-jfcmv   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-kvn6m   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-qksqx   loki       0m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-ww25n   loki       0m           31Mi
+minio-78b746f6c5-rcbqc                                  minio      7m           1521Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   0m           11Mi
+write-stress-0                                          fedora     225m         514Mi
+write-stress-1                                          fedora     422m         675Mi
+write-stress-2                                          fedora     592m         645Mi
+write-stress-3                                          fedora     451m         659Mi
+write-stress-4                                          fedora     401m         596Mi
+write-stress-5                                          fedora     506m         528Mi
+Wed May  5 11:40:34 IDT 2021
+
+
+    ======>>> Deploying with loki replications 8
+    -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+==> deploying loki (using helm) - with 8 replications
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+release "loki" uninstalled
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "loki-loki-distributed"
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/eranra/openshift/openshift_deploy/auth/kubeconfig
+Release "loki" does not exist. Installing it now.
+NAME: loki
+LAST DEPLOYED: Wed May  5 11:40:48 2021
+NAMESPACE: loki
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+***********************************************************************
+ Welcome to Grafana Loki
+ Chart version: 0.28.0
+ Loki version: 2.2.0
+***********************************************************************
+
+Installed components:
+* ingester
+* distributor
+* querier
+* query-frontend
+route.route.openshift.io "loki-loki-distributed-query-frontend" deleted
+route.route.openshift.io/loki-loki-distributed-query-frontend exposed
+route.route.openshift.io "loki-loki-distributed-distributor" deleted
+route.route.openshift.io/loki-loki-distributed-distributor exposed
+NAME                                   HOST/PORT                                                                                       PATH   SERVICES                               PORT      TERMINATION   WILDCARD
+grafana                                grafana-loki.apps.eraichst-050520210941.devcluster.openshift.com                                       grafana                                service                 None
+loki-loki-distributed-distributor      loki-loki-distributed-distributor-loki.apps.eraichst-050520210941.devcluster.openshift.com             loki-loki-distributed-distributor      http                    None
+loki-loki-distributed-query-frontend   loki-loki-distributed-query-frontend-loki.apps.eraichst-050520210941.devcluster.openshift.com          loki-loki-distributed-query-frontend   http                    None
+minio                                  minio-loki.apps.eraichst-050520210941.devcluster.openshift.com                                         minio                                  www                     None
+All pods are ready
+Wed May  5 11:50:25 IDT 2021
+
+
+        ======>>> Deploying stress with write batch size:3, write msg per sec:2000, write replicas:6
+        -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-
+
+
+--> Deploying stress_template.yaml - with (6 2000 3 0 0)
+  adding: loki-write-stressor (deflated 60%)
+ copying: loki-write-stressor
+configmap "loki-write-stressor-binary-zip" deleted
+configmap "loki-write-stressor-binary-z01" deleted
+configmap/loki-write-stressor-binary-zip created
+configmap/loki-write-stressor-binary-z01 created
+==> deploy stress
+clusterrole.rbac.authorization.k8s.io/system:openshift:scc:privileged added: "stress-service-account"
+statefulset.apps "write-stress" deleted
+statefulset.apps "query-stress" deleted
+serviceaccount/stress-service-account unchanged
+statefulset.apps/write-stress created
+statefulset.apps/query-stress created
+All pods are ready
+All pods are ready
+Wed May  5 11:51:02 IDT 2021
+===> Collecting results for (8,3,2000,6,) into results/results_on_05-05-21...10.34.33.csv
+===> Warm up: waiting 120 seconds
+===> Waiting for enough results
+we have 1 results - still waiting
+we have 2 results - still waiting
+
+      ======>>> RESULTS of current execution
+      -==--=-==--=-=-==--=-==-=--==--=-=-=-=-=-=-=-==--=-=-=-=
+
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-6b4q7      loki       336m         240Mi
+loki-loki-distributed-distributor-7d7d6988c9-bbr4x      loki       80m          264Mi
+loki-loki-distributed-distributor-7d7d6988c9-c9mxx      loki       15m          423Mi
+loki-loki-distributed-distributor-7d7d6988c9-cnv8q      loki       36m          265Mi
+loki-loki-distributed-distributor-7d7d6988c9-d2gmq      loki       170m         314Mi
+loki-loki-distributed-distributor-7d7d6988c9-jj5vl      loki       53m          287Mi
+loki-loki-distributed-distributor-7d7d6988c9-lfgjv      loki       372m         194Mi
+loki-loki-distributed-ingester-0                        loki       2m           151Mi
+loki-loki-distributed-ingester-1                        loki       2m           242Mi
+loki-loki-distributed-ingester-2                        loki       197m         424Mi
+loki-loki-distributed-ingester-3                        loki       2m           101Mi
+loki-loki-distributed-ingester-4                        loki       3m           186Mi
+loki-loki-distributed-ingester-5                        loki       61m          209Mi
+loki-loki-distributed-ingester-6                        loki       61m          125Mi
+loki-loki-distributed-querier-0                         loki       4m           47Mi
+loki-loki-distributed-querier-1                         loki       2m           46Mi
+loki-loki-distributed-querier-2                         loki       3m           42Mi
+loki-loki-distributed-querier-3                         loki       4m           44Mi
+loki-loki-distributed-querier-4                         loki       3m           47Mi
+loki-loki-distributed-querier-5                         loki       3m           45Mi
+loki-loki-distributed-querier-6                         loki       4m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5m4np   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8zrqc   loki       1m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fw9sh   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-lz8zm   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rwkc4   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vgkx7   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-zhmv4   loki       0m           34Mi
+minio-78b746f6c5-rcbqc                                  minio      6m           1832Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   9m           11Mi
+write-stress-0                                          fedora     477m         233Mi
+write-stress-1                                          fedora     884m         149Mi
+write-stress-2                                          fedora     639m         221Mi
+write-stress-3                                          fedora     682m         184Mi
+write-stress-4                                          fedora     254m         277Mi
+write-stress-5                                          fedora     650m         210Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-6b4q7      loki       175m         133Mi
+loki-loki-distributed-distributor-7d7d6988c9-bbr4x      loki       147m         171Mi
+loki-loki-distributed-distributor-7d7d6988c9-c9mxx      loki       200m         261Mi
+loki-loki-distributed-distributor-7d7d6988c9-cnv8q      loki       410m         153Mi
+loki-loki-distributed-distributor-7d7d6988c9-d2gmq      loki       221m         226Mi
+loki-loki-distributed-distributor-7d7d6988c9-jj5vl      loki       342m         169Mi
+loki-loki-distributed-distributor-7d7d6988c9-lfgjv      loki       422m         170Mi
+loki-loki-distributed-ingester-0                        loki       5m           151Mi
+loki-loki-distributed-ingester-1                        loki       2m           226Mi
+loki-loki-distributed-ingester-2                        loki       656m         479Mi
+loki-loki-distributed-ingester-3                        loki       3m           101Mi
+loki-loki-distributed-ingester-4                        loki       10m          144Mi
+loki-loki-distributed-ingester-5                        loki       451m         287Mi
+loki-loki-distributed-ingester-6                        loki       572m         184Mi
+loki-loki-distributed-querier-0                         loki       3m           46Mi
+loki-loki-distributed-querier-1                         loki       3m           46Mi
+loki-loki-distributed-querier-2                         loki       3m           42Mi
+loki-loki-distributed-querier-3                         loki       3m           44Mi
+loki-loki-distributed-querier-4                         loki       3m           47Mi
+loki-loki-distributed-querier-5                         loki       3m           45Mi
+loki-loki-distributed-querier-6                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5m4np   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8zrqc   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fw9sh   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-lz8zm   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rwkc4   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vgkx7   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-zhmv4   loki       0m           36Mi
+minio-78b746f6c5-rcbqc                                  minio      11m          1866Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   9m           11Mi
+write-stress-0                                          fedora     551m         473Mi
+write-stress-1                                          fedora     640m         285Mi
+write-stress-2                                          fedora     492m         446Mi
+write-stress-3                                          fedora     401m         369Mi
+write-stress-4                                          fedora     396m         421Mi
+write-stress-5                                          fedora     413m         424Mi
+
+POD                                                     NAME       CPU(cores)   MEMORY(bytes)
+grafana-7886987fc7-nkpdp                                grafana    0m           34Mi
+loki-loki-distributed-distributor-7d7d6988c9-6b4q7      loki       644m         138Mi
+loki-loki-distributed-distributor-7d7d6988c9-bbr4x      loki       120m         176Mi
+loki-loki-distributed-distributor-7d7d6988c9-c9mxx      loki       227m         265Mi
+loki-loki-distributed-distributor-7d7d6988c9-cnv8q      loki       241m         158Mi
+loki-loki-distributed-distributor-7d7d6988c9-d2gmq      loki       138m         234Mi
+loki-loki-distributed-distributor-7d7d6988c9-jj5vl      loki       127m         174Mi
+loki-loki-distributed-distributor-7d7d6988c9-lfgjv      loki       64m          174Mi
+loki-loki-distributed-ingester-0                        loki       2m           151Mi
+loki-loki-distributed-ingester-1                        loki       4m           225Mi
+loki-loki-distributed-ingester-2                        loki       516m         522Mi
+loki-loki-distributed-ingester-3                        loki       3m           101Mi
+loki-loki-distributed-ingester-4                        loki       4m           144Mi
+loki-loki-distributed-ingester-5                        loki       325m         317Mi
+loki-loki-distributed-ingester-6                        loki       413m         231Mi
+loki-loki-distributed-querier-0                         loki       3m           46Mi
+loki-loki-distributed-querier-1                         loki       3m           45Mi
+loki-loki-distributed-querier-2                         loki       2m           42Mi
+loki-loki-distributed-querier-3                         loki       2m           44Mi
+loki-loki-distributed-querier-4                         loki       5m           47Mi
+loki-loki-distributed-querier-5                         loki       4m           43Mi
+loki-loki-distributed-querier-6                         loki       3m           44Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-5m4np   loki       1m           33Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-8zrqc   loki       1m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-fw9sh   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-lz8zm   loki       0m           32Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-rwkc4   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-vgkx7   loki       0m           34Mi
+loki-loki-distributed-query-frontend-5b5c9c7b6d-zhmv4   loki       0m           36Mi
+minio-78b746f6c5-rcbqc                                  minio      9m           1905Mi
+minio-78b746f6c5-rcbqc                                  minio-mc   9m           11Mi
+write-stress-0                                          fedora     584m         701Mi
+write-stress-1                                          fedora     502m         520Mi
+write-stress-2                                          fedora     273m         632Mi
+write-stress-3                                          fedora     405m         617Mi
+write-stress-4                                          fedora     628m         598Mi
+write-stress-5                                          fedora     242m         639Mi
+
+eranra@localhost [1863] ~/lokideploy
+$
+
