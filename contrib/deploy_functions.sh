@@ -92,18 +92,48 @@ loki:
     frontend:
       log_queries_longer_than: 5s
       compress_responses: true
+global:
+  dnsService: kubelet
 gateway:
-  enabled: false
+  enabled: true
 distributor:
   replicas: ${replications}
-querier:
-  replicas: ${replications}
-queryFrontend:
-  replicas: ${replications}
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2000Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 ingester:
   replicas: ${replications}
+  resources:
+      limits:
+        cpu: 2000m
+        memory: 2000Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
   persistence: 
     enabled: true
+querier:
+  replicas: ${replications}
+  resources:
+      limits:
+        cpu: 2000m
+        memory: 2000Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+queryFrontend:
+  replicas: ${replications}
+  resources:
+      limits:
+        cpu: 2000m
+        memory: 2000Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 memcachedChunks:
   enabled: false
 memcachedFrontend:
