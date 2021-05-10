@@ -81,6 +81,8 @@ loki:
       aws:
         s3: ${s3_endpoint}
         s3forcepathstyle: true
+        http_config:
+          insecure_skip_verify: true
       boltdb_shipper:
         shared_store: s3
         active_index_directory: /var/loki/index
