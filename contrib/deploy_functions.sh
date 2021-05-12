@@ -52,6 +52,8 @@ loki:
           store: memberlist
 
     ingester:
+      chunk_block_size: 1572864
+      chunk_encoding: snappy
       lifecycler:
         ring:
           kvstore:
@@ -62,10 +64,10 @@ loki:
         - {{ include "loki.fullname" . }}-memberlist
 
     limits_config:
-      ingestion_rate_mb: 1000
-      ingestion_burst_size_mb: 1000
-      max_concurrent_tail_requests: 1000
-      max_cache_freshness_per_query: 1m
+      ingestion_rate_mb: 100
+      ingestion_burst_size_mb: 100
+      max_concurrent_tail_requests: 100
+      max_cache_freshness_per_query: 10m
 
     schema_config:
       configs:
@@ -92,50 +94,53 @@ loki:
       frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
 
     frontend:
-      log_queries_longer_than: 5s
       compress_responses: true
 global:
   dnsService: kubelet
 gateway:
-  enabled: true
+  enabled: false
 distributor:
   replicas: ${replications}
+  affinity: ""
   resources:
     limits:
-      cpu: 2000m
-      memory: 2000Mi
+      cpu: 2
+      memory: 2Gi
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 1
+      memory: 1Gi
 ingester:
   replicas: ${replications}
+  affinity: ""
   resources:
       limits:
-        cpu: 2000m
-        memory: 2000Mi
+        cpu: 2
+        memory: 10Gi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 1
+        memory: 5Gi
   persistence: 
     enabled: true
 querier:
   replicas: ${replications}
+  affinity: ""
   resources:
       limits:
-        cpu: 2000m
-        memory: 2000Mi
+        cpu: 2
+        memory: 4Gi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 1
+        memory: 2Gi
 queryFrontend:
   replicas: ${replications}
+  affinity: ""
   resources:
       limits:
-        cpu: 2000m
-        memory: 2000Mi
+        cpu: 2
+        memory: 2Gi
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 1
+        memory: 1Gi
 memcachedChunks:
   enabled: false
 memcachedFrontend:
@@ -257,7 +262,7 @@ print_pods_status() {
 # print usage instructions
 print_usage_instructions() {
   GRAFANA_POD=$(oc get pod -l app.kubernetes.io/name=grafana -o jsonpath="{.items[0].metadata.name}")
-  MINIO_POD=$(oc get pod -l app=minio -o jsonpath="{.items[0].metadata.name}")
+  MINIO_POD=$(oc get pod -l app=minio -o jsonpath="{.items[0].metadata.name}" 2>/dev/null )
 
   echo -e "Waiting for $GRAFANA_POD to become ready"
   while : ; do
