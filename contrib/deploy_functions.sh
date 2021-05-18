@@ -43,8 +43,11 @@ loki:
       log_level: info
       # Must be set to 3100
       http_listen_port: 3100
-      grpc_server_max_recv_msg_size: 16000000
-      grpc_server_max_send_msg_size: 16000000
+      grpc_server_max_recv_msg_size: 104857600
+      grpc_server_max_send_msg_size: 104857600
+
+    tracing:
+      enabled: false
 
     distributor:
       ring:
@@ -52,22 +55,38 @@ loki:
           store: memberlist
 
     ingester:
-      chunk_block_size: 1572864
-      chunk_encoding: snappy
+      max_transfer_retries: 60
+      flush_check_period: 30s
+      flush_op_timeout: 30s
+      concurrent_flushes: 128
+      chunk_block_size: 15728640
+      chunk_encoding: lz4
+      chunk_idle_period: 40s
+      chunk_retain_period: 20s
+      max_chunk_age: 60s
       lifecycler:
         ring:
           kvstore:
             store: memberlist
+    
+    chunk_store_config:
+      chunk_cache_config:
+        enable_fifocache: yes
+      max_look_back_period: 0s
 
     memberlist:
       join_members:
         - {{ include "loki.fullname" . }}-memberlist
 
     limits_config:
+      ingestion_rate_strategy: global
+      reject_old_samples: true
       ingestion_rate_mb: 100
       ingestion_burst_size_mb: 100
       max_concurrent_tail_requests: 100
       max_cache_freshness_per_query: 10m
+      creation_grace_period: 1m
+      enforce_metric_name: false
 
     schema_config:
       configs:
@@ -85,16 +104,18 @@ loki:
         s3forcepathstyle: true
         http_config:
           insecure_skip_verify: true
+      index_cache_validity: 40s 
       boltdb_shipper:
         shared_store: s3
         active_index_directory: /var/loki/index
         cache_location: /var/loki/cache  
-
+      
     frontend_worker:
       frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
 
     frontend:
       compress_responses: true
+    
 global:
   dnsService: kubelet
 gateway:
@@ -121,6 +142,7 @@ ingester:
         memory: 5Gi
   persistence: 
     enabled: true
+  terminationGracePeriodSeconds: 5
 querier:
   replicas: ${replications}
   affinity: ""
