@@ -55,24 +55,22 @@ loki:
           store: memberlist
 
     ingester:
-      max_transfer_retries: 60
+      max_transfer_retries: 10
       flush_check_period: 30s
-      flush_op_timeout: 30s
-      concurrent_flushes: 128
+      flush_op_timeout: 3m
+      concurrent_flushes: 64
       chunk_block_size: 15728640
       chunk_encoding: lz4
-      chunk_idle_period: 40s
-      chunk_retain_period: 20s
-      max_chunk_age: 60s
+      chunk_idle_period: 1m
+      chunk_retain_period: 0m
+      max_chunk_age: 5m
       lifecycler:
         ring:
           kvstore:
             store: memberlist
-    
-    chunk_store_config:
-      chunk_cache_config:
-        enable_fifocache: yes
-      max_look_back_period: 0s
+          replication_factor: 1
+        final_sleep: 0s
+        min_ready_duration: 10s
 
     memberlist:
       join_members:
@@ -83,8 +81,7 @@ loki:
       reject_old_samples: true
       ingestion_rate_mb: 100
       ingestion_burst_size_mb: 100
-      max_concurrent_tail_requests: 100
-      max_cache_freshness_per_query: 10m
+      max_cache_freshness_per_query: 1m
       creation_grace_period: 1m
       enforce_metric_name: false
 
@@ -136,10 +133,9 @@ ingester:
   resources:
       limits:
         cpu: 2
-        memory: 10Gi
       requests:
         cpu: 1
-        memory: 5Gi
+        memory: 3Gi
   persistence: 
     enabled: true
   terminationGracePeriodSeconds: 5
@@ -159,7 +155,6 @@ queryFrontend:
   resources:
       limits:
         cpu: 2
-        memory: 2Gi
       requests:
         cpu: 1
         memory: 1Gi
