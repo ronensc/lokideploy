@@ -37,7 +37,7 @@ deploy_loki_distributed_helm_chart() {
   cat > tmp/loki-values.yaml <<- EOF
 loki:
   config: |
-    auth_enabled: false
+    auth_enabled: true
 
     server:
       log_level: info
@@ -45,6 +45,9 @@ loki:
       http_listen_port: 3100
       grpc_server_max_recv_msg_size: 104857600
       grpc_server_max_send_msg_size: 104857600
+      http_server_read_timeout: 25s
+      http_server_write_timeout: 20s
+      graceful_shutdown_timeout: 15s
 
     tracing:
       enabled: false
@@ -77,6 +80,7 @@ loki:
         - {{ include "loki.fullname" . }}-memberlist
 
     limits_config:
+      max_entries_limit_per_query: 0
       ingestion_rate_strategy: global
       reject_old_samples: true
       ingestion_rate_mb: 100
@@ -96,6 +100,8 @@ loki:
             period: 24h
 
     storage_config:
+      azure:
+        request_timeout: 10s
       aws:
         s3: ${s3_endpoint}
         s3forcepathstyle: true
@@ -107,8 +113,20 @@ loki:
         active_index_directory: /var/loki/index
         cache_location: /var/loki/cache  
       
+    # query_range:
+    #   split_queries_by_interval: 15s
+
+    querier:
+      query_ingesters_within: 1s
+      # `query_store_only` doesn't exist yet in the latest version
+      # query_store_only: true
+      engine:
+        max_look_back_period: 40s
+
     frontend_worker:
       frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
+      grpc_client_config:
+        max_send_msg_size: 17179869184  # 16GiB
 
     frontend:
       compress_responses: true
@@ -126,26 +144,26 @@ distributor:
       memory: 2Gi
     requests:
       cpu: 1
-      memory: 1Gi
+      memory: 200Mi
 ingester:
-  replicas: ${replications}
+  replicas: 2
   affinity: ""
   resources:
       limits:
         cpu: 2
       requests:
         cpu: 1
-        memory: 3Gi
+        memory: 200Mi
   persistence: 
     enabled: true
   terminationGracePeriodSeconds: 5
 querier:
-  replicas: ${replications}
+  replicas: 4
   affinity: ""
   resources:
-      limits:
-        cpu: 2
-        memory: 4Gi
+#      limits:
+#        cpu: 2
+#        memory: 4Gi
       requests:
         cpu: 1
         memory: 2Gi
