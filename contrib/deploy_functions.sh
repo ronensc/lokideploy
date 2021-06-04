@@ -45,9 +45,9 @@ loki:
       http_listen_port: 3100
       grpc_server_max_recv_msg_size: 104857600
       grpc_server_max_send_msg_size: 104857600
-      http_server_read_timeout: 25s
-      http_server_write_timeout: 20s
-      graceful_shutdown_timeout: 15s
+      http_server_read_timeout: 60s
+      http_server_write_timeout: 60s
+      graceful_shutdown_timeout: 60s
 
     tracing:
       enabled: false
@@ -101,7 +101,7 @@ loki:
 
     storage_config:
       azure:
-        request_timeout: 10s
+        request_timeout: 60s
       aws:
         s3: ${s3_endpoint}
         s3forcepathstyle: true
@@ -117,10 +117,12 @@ loki:
     #   split_queries_by_interval: 15s
 
     querier:
+      query_timeout: 60s
       query_ingesters_within: 1s
-      # `query_store_only` doesn't exist yet in the latest version
+      # 'query_store_only' doesn't exist yet in the latest version
       # query_store_only: true
       engine:
+        timeout: 3m
         max_look_back_period: 40s
 
     frontend_worker:
