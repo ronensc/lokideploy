@@ -43,11 +43,11 @@ loki:
       log_level: info
       # Must be set to 3100
       http_listen_port: 3100
-      grpc_server_max_recv_msg_size: 104857600
-      grpc_server_max_send_msg_size: 104857600
-      http_server_read_timeout: 60s
-      http_server_write_timeout: 60s
-      graceful_shutdown_timeout: 60s
+      grpc_server_max_recv_msg_size: 10485760000 # 10 GB
+      grpc_server_max_send_msg_size: 10485760000 # 10 GB
+      http_server_read_timeout: 2m
+      http_server_write_timeout: 2m
+      graceful_shutdown_timeout: 2m
 
     tracing:
       enabled: false
@@ -101,7 +101,7 @@ loki:
 
     storage_config:
       azure:
-        request_timeout: 60s
+        request_timeout: 2m
       aws:
         s3: ${s3_endpoint}
         s3forcepathstyle: true
@@ -117,7 +117,7 @@ loki:
     #   split_queries_by_interval: 15s
 
     querier:
-      query_timeout: 60s
+      query_timeout: 2m
       query_ingesters_within: 1s
       # 'query_store_only' doesn't exist yet in the latest version
       # query_store_only: true
@@ -131,6 +131,7 @@ loki:
         max_send_msg_size: 17179869184  # 16GiB
 
     frontend:
+      log_queries_longer_than: 27s
       compress_responses: true
     
 global:
@@ -155,8 +156,9 @@ ingester:
         cpu: 2
       requests:
         cpu: 1
-        memory: 200Mi
-  persistence: 
+#        memory: 200Mi
+        memory: 3Gi
+  persistence:
     enabled: true
   terminationGracePeriodSeconds: 5
 querier:
