@@ -1,15 +1,20 @@
 #!/bin/bash
 
 show_usage() {
+  #TODO: UPDATE
   echo "
 usage: deploy_loki_to_openshift [options]
   options:
-    -c    --collector=[enum]           Logs collector   (promtail, none  default: none)
-    -dm   --deploy_minio=[bool]        deploy_minio ( default: false)
-    -r    --replicas=[num]             Loki microservices replicas ( default: 2)
-    -sp   --stress_profile=[enum]      Stress profile against loki ( none,light,medium,heavy default: none)
-    -s3ep --s3_endpoint=[string]       S3 end-point ( default: s3://user:password@minio.loki.svc.cluster.local:9000/bucket)
-    -h,   --help                       Show usage
+    -c    --collector=[enum]                Logs collector   (promtail, none  default: none)
+    -dm   --deploy_minio=[bool]             deploy_minio ( default: false)
+    -r    --replicas=[num]                  Loki microservices replicas ( default: 2)
+    -ir   --ingester_replicas=[num]         Loki ingester replicas ( default: \$replicas)
+    -dr   --distributor_replicas=[num]      Loki distributor replicas ( default: \$replicas)
+    -qr   --querier_replicas=[num]          Loki querier replicas ( default: \$replicas)
+    -qr   --query_frontend_replicas=[num]   Loki query frontend replicas ( default: \$replicas)
+    -sp   --stress_profile=[enum]           Stress profile against loki ( none,light,medium,heavy default: none)
+    -s3ep --s3_endpoint=[string]            S3 end-point ( default: s3://user:password@minio.loki.svc.cluster.local:9000/bucket)
+    -h,   --help                            Show usage
 "
   exit 0
 }
@@ -22,7 +27,10 @@ Note: get more deployment options with -h
 Configuration:
 -=-=-=-=-=-=-
 Logs collector --> $collector
-Loki microservices replicas --> $replicas
+Loki ingester replicas --> $ingester_replicas
+Loki distributor replicas --> $distributor_replicas
+Loki querier replicas --> $querier_replicas
+Loki query frontend replicas --> $query_frontend_replicas
 Stress profile --> $stress_profile
 Deploy minio --> $deploy_minio
 S3 End Point  --> $s3_endpoint
@@ -38,7 +46,12 @@ deploy() {
   if [ "$deploy_minio" = "true" ]; then
     deploy_minio;
   fi
-  deploy_loki_distributed_helm_chart "$replicas" "$s3_endpoint"
+  deploy_loki_distributed_helm_chart \
+    "$ingester_replicas" \
+    "$distributor_replicas" \
+    "$querier_replicas" \
+    "$query_frontend_replicas" \
+    "$s3_endpoint"
   deploy_grafana_helm_chart
   case "$collector" in
     'promtail')   deploy_promtail_helm_chart;;
@@ -73,11 +86,22 @@ then
       -c=*|--collector=*) collector="${i#*=}"; shift ;;
       -dm=*|--deploy_minio=*) deploy_minio="${i#*=}"; shift ;;
       -r=*|--replicas=*) replicas="${i#*=}"; shift ;;
+      -ir=*|--ingester_replicas=*) ingester_replicas="${i#*=}"; shift ;;
+      -dr=*|--distributor_replicas=*) distributor_replicas="${i#*=}"; shift ;;
+      -qr=*|--querier_replicas=*) querier_replicas="${i#*=}"; shift ;;
+      -qfr=*|--query_frontend_replicas=*) query_frontend_replicas="${i#*=}"; shift ;;
       -sp=*|--stress_profile=*) stress_profile="${i#*=}"; shift ;;
       -s3ep=*|--s3_endpoint=*) s3_endpoint="${i#*=}"; shift ;;
       -h|--help|*) show_usage ;;
   esac
   done
+
+  # Assign $replicas as default value if specific component replica isn't set in the command line args
+  # https://stackoverflow.com/a/28085062/2749989
+  : "${ingester_replicas:=$replicas}"
+  : "${distributor_replicas:=$replicas}"
+  : "${querier_replicas:=$replicas}"
+  : "${query_frontend_replicas:=$replicas}"
 
   deploy "$@"
   print_pods_status
