@@ -29,10 +29,18 @@ add_helm_repository() {
 
 # deploy loki (distributed)
 deploy_loki_distributed_helm_chart() {
-  replications=$1
-  s3_endpoint=$2
+  ingester_replicas=$1
+  distributor_replicas=$2
+  querier_replicas=$3
+  query_frontend_replicas=$4
+  s3_endpoint=$5
 
-  echo "==> deploying loki (using helm) - with $replications replications"
+  echo "==> deploying loki (using helm)"
+  echo "Replicas:"
+  echo "ingester_replicas=$ingester_replicas"
+  echo "distributor_replicas=$distributor_replicas"
+  echo "querier_replicas=$querier_replicas"
+  echo "query_frontend_replicas=$query_frontend_replicas"
   helm delete loki -n loki
   cat > tmp/loki-values.yaml <<- EOF
 loki:
@@ -139,7 +147,7 @@ global:
 gateway:
   enabled: false
 distributor:
-  replicas: ${replications}
+  replicas: ${distributor_replicas}
   affinity: ""
   resources:
     limits:
@@ -149,20 +157,20 @@ distributor:
       cpu: 1
       memory: 200Mi
 ingester:
-  replicas: 2
+  replicas: ${ingester_replicas}
   affinity: ""
   resources:
       limits:
         cpu: 2
       requests:
         cpu: 1
-#        memory: 200Mi
-        memory: 3Gi
+        memory: 200Mi
+#        memory: 3Gi
   persistence:
     enabled: true
   terminationGracePeriodSeconds: 5
 querier:
-  replicas: 4
+  replicas: ${querier_replicas}
   affinity: ""
   resources:
 #      limits:
@@ -170,9 +178,10 @@ querier:
 #        memory: 4Gi
       requests:
         cpu: 1
-        memory: 2Gi
+#        memory: 2Gi
+        memory: 1000Mi
 queryFrontend:
-  replicas: ${replications}
+  replicas: ${query_frontend_replicas}
   affinity: ""
   resources:
       limits:
@@ -180,6 +189,7 @@ queryFrontend:
       requests:
         cpu: 1
         memory: 1Gi
+#        memory: 200Mi
 memcachedChunks:
   enabled: false
 memcachedFrontend:
