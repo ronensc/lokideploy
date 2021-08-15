@@ -1,0 +1,110 @@
+# Reference:
+#  https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed#example-configuration-using-memberlist-boltdb-shipper-and-s3-for-storage
+loki:
+  config: |
+    auth_enabled: true
+
+    server:
+      log_level: info
+      # Must be set to 3100
+      http_listen_port: 3100
+
+    distributor:
+      ring:
+        kvstore:
+          store: memberlist
+
+    ingester:
+      # Disable chunk transfer which is not possible with statefulsets
+      # and unnecessary for boltdb-shipper
+      max_transfer_retries: 0
+      chunk_idle_period: 1h
+      chunk_target_size: 1536000
+      max_chunk_age: 1h
+      lifecycler:
+        join_after: 0s
+        ring:
+          kvstore:
+            store: memberlist
+
+    memberlist:
+      join_members:
+        - {{ include "loki.fullname" . }}-memberlist
+
+    schema_config:
+      configs:
+        - from: 2020-09-07
+          store: boltdb-shipper
+          object_store: aws
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+
+    storage_config:
+      aws:
+        s3: {{ .Values.aws.url }}
+        region: {{ .Values.aws.region }}
+        http_config:
+          insecure_skip_verify: true
+      boltdb_shipper:
+        shared_store: s3
+        active_index_directory: /var/loki/index
+        cache_location: /var/loki/cache
+
+    frontend_worker:
+      frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
+
+    frontend:
+      log_queries_longer_than: 5s
+      compress_responses: true
+
+global:
+  dnsService: kubelet
+gateway:
+  enabled: false
+
+distributor:
+  replicas: 2
+  affinity: ""
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 1
+      memory: 200Mi
+ingester:
+  replicas: 4
+  affinity: ""
+  resources:
+      limits:
+        cpu: 2
+      requests:
+        cpu: 1
+        memory: 200Mi
+#        memory: 3Gi
+  persistence:
+    enabled: true
+  terminationGracePeriodSeconds: 5
+querier:
+  replicas: 4
+  affinity: ""
+  resources:
+#      limits:
+#        cpu: 2
+#        memory: 4Gi
+      requests:
+        cpu: 1
+#        memory: 2Gi
+        memory: 1000Mi
+queryFrontend:
+  replicas: 2
+  affinity: ""
+  resources:
+      limits:
+        cpu: 2
+      requests:
+        cpu: 1
+        memory: 1Gi
+#        memory: 200Mi
